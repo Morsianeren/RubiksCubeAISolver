@@ -4,29 +4,32 @@ from typing import Literal
 from abc import ABC, abstractmethod
 
 
-class Piece():
-    def __init__(self, letter, number: int = None):
-        self.number = number
+class Piece(ABC):
+    def __init__(self, letter, coordinate: tuple = None):
+        self.matrix_coordinate = coordinate
+        self.current_coordinate = coordinate
         self.letter = letter
 
     def __str__(self):
-        return str(self.number) if self.number is not None else self.letter
+        return str(self.matrix_coordinate) if self.matrix_coordinate is not None else self.letter
+         
 
 class EdgePiece(Piece):
-        def __init__(self, number: int = None):
-            super().__init__("E", number)
+        def __init__(self, coordinate: int = None):
+            super().__init__("E", coordinate)
 
 class CornerPiece(Piece):
-    def __init__(self, number: int = None):
-            super().__init__("C", number)
+    def __init__(self, coordinate: int = None):
+            super().__init__("C", coordinate)
 
 class MiddlePiece(Piece):
-    def __init__(self, number: int = None):
-            super().__init__("M", number)
+    def __init__(self, coordinate: int = None):
+            super().__init__("M", coordinate)
     
 class CorePiece(Piece):
-    def __init__(self, number: int = None):
-            super().__init__("X", number)
+    def __init__(self, coordinate: int = None):
+            super().__init__("X", coordinate)
+
 
 class Cube():
     def __init__(self):
@@ -36,11 +39,10 @@ class Cube():
 
         # Iterate over the cube
         for x, y, z in np.ndindex(self.cube.shape):
-            # Make the values of the cube unique
-            #self.cube[x, y, z] = (x + 1) * 1 + (y + 1) * 10  + (z + 1) * 100
-
             # Classify the piece
             self.cube[x, y, z] = self._classify_piece(x, y, z)
+            # Make the values of the cube unique (for testing purposes)
+            self.cube[x, y, z].matrix_coordinate = (x, y, z)
 
         self.org_cube = self.cube.copy() # Save the original state of the cube
 
@@ -87,6 +89,8 @@ class Cube():
             return MiddlePiece()
         elif ones_count == 3:
             return CorePiece()
+        else:
+            raise ValueError("Invalid piece")
         
 
  
