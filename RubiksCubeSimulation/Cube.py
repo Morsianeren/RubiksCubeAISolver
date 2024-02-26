@@ -7,7 +7,6 @@ from abc import ABC, abstractmethod
 class Piece(ABC):
     def __init__(self, letter, coordinate: tuple = None):
         self.matrix_coordinate = coordinate
-        self.current_coordinate = coordinate
         self.letter = letter
 
     def __str__(self):
