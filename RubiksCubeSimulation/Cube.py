@@ -5,29 +5,29 @@ from abc import ABC, abstractmethod
 
 
 class Piece(ABC):
-    def __init__(self, letter, coordinate: tuple = None):
-        self.matrix_coordinate = coordinate
+    def __init__(self, letter, name = None):
+        self.name = name
         self.letter = letter
 
     def __str__(self):
-        return str(self.matrix_coordinate) if self.matrix_coordinate is not None else self.letter
+        return str(self.name) if self.name is not None else self.letter
          
 
 class EdgePiece(Piece):
-        def __init__(self, coordinate: int = None):
-            super().__init__("E", coordinate)
+        def __init__(self, name = None):
+            super().__init__("E", name)
 
 class CornerPiece(Piece):
-    def __init__(self, coordinate: int = None):
-            super().__init__("C", coordinate)
+    def __init__(self, name = None):
+            super().__init__("C", name)
 
 class MiddlePiece(Piece):
-    def __init__(self, coordinate: int = None):
-            super().__init__("M", coordinate)
+    def __init__(self, name = None):
+            super().__init__("M", name)
     
 class CorePiece(Piece):
-    def __init__(self, coordinate: int = None):
-            super().__init__("X", coordinate)
+    def __init__(self, name = None):
+            super().__init__("X", name)
 
 
 class Cube():

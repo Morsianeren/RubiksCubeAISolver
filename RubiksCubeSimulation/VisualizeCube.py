@@ -6,10 +6,57 @@ from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 from Cube import Cube, EdgePiece, CornerPiece, MiddlePiece, CorePiece
 
 cube = Cube()
-cube.rotate_center("x", "cw")
+print(cube)
+cube.rotate_center("z", "cw")
+#print(cube)
+# %%
 
 figure = plt.figure()
 ax = figure.add_subplot(111, projection='3d')
+
+def rotate_vector(face_vector: list, original_coordinate: list, new_coordinate: list):
+    # TODO: Make this function so it can take a list of rotation angles
+    # and rotate a face vector accordingly
+
+    # The difference between the org_vector and the new_vector is the rotation
+    # You can multiply the difference with 45 degrees to get the rotation angles
+    # E.g. if the difference is [0, 0, 2], 
+    # then the rotation is 90 degrees around the z-axis
+
+    x_delta = new_coordinate[0] - original_coordinate[0]
+    y_delta = new_coordinate[1] - original_coordinate[1]
+    z_delta = new_coordinate[2] - original_coordinate[2]
+
+    theta_x = 45 * x_delta
+    theta_y = 45 * y_delta
+    theta_z = 45 * z_delta
+
+    Rx = np.array([[1, 0, 0],
+                [0, np.cos(theta_x), -np.sin(theta_x)],
+                [0, np.sin(theta_x), np.cos(theta_x)]])
+
+    Ry = np.array([[np.cos(theta_y), 0, np.sin(theta_y)],
+                [0, 1, 0],
+                [-np.sin(theta_y), 0, np.cos(theta_y)]])
+        
+    Rz = np.array([[np.cos(theta_z), -np.sin(theta_z), 0],
+                [np.sin(theta_z), np.cos(theta_z), 0],
+                [0, 0, 1]])
+
+    R_combined = np.dot(Rx, Ry, Rz)
+    #print(R_combined)
+
+    #face_vector = np.array([-1, 0, 0])
+    point_a = original_coordinate
+    point_b = [x + y for x, y in zip(original_coordinate, face_vector)]
+
+    a_rotated = np.dot(R_combined, point_a)
+    b_rotated = np.dot(R_combined, point_b)
+
+    new_face_vector = b_rotated - a_rotated
+
+    return new_face_vector
+
 
 def get_vertices(direction_vector):
     """This function calculates the vertices for a square
@@ -143,46 +190,35 @@ for x, y, z in np.ndindex(cube.cube.shape):
     if len(face_vectors) == 0:
         continue
 
+    print("Face vectors:")
+    print(face_vectors)
+
     # Loop for each face vector
     for face_vector in face_vectors:
         # First identify the colors of the faces
         color = get_color(face_vector)
 
         # Next we rotate the face vector to the correct position
-        rotated_face_vector = face_vector # TODO: Replace this with a function that rotates the face vector
+        rotated_face_vector = rotate_vector(face_vector, v_initial, v_current)
+        # rotated_face_vector = face_vector # TODO: Replace this with a function that rotates the face vector
 
+        print("Orginial face vector: " + str(face_vector))
         print("Rotated face vector: " + str(rotated_face_vector))
+        print("")
 
         # Next we get the vertices of the square
-        vertices = get_translated_vertices(rotated_face_vector, v_initial)
+        try:
+            vertices = get_translated_vertices(rotated_face_vector, v_initial)
+        except:
+            print("ERROR")
+            break
 
         # Add the square to the plot
-        print("Plotting square: " + str(vertices) + " with color: " + color)
+        #print("Plotting square: " + str(vertices) + " with color: " + color)
         ax.add_collection3d(Poly3DCollection([vertices], facecolors=color, edgecolors="black"))
 
 ax.set_xlim([-3, 3])
 ax.set_ylim([-3, 3])
 ax.set_zlim([-3, 3])
 # %%
-
-
-def rotate_vector(vector, rotation_angles):
-    # TODO: Make this function so it can take a list of rotation angles
-    # and rotate a face vector accordingly
-
-    # The difference between the org_vector and the new_vector is the rotation
-    # You can multiply the difference with 45 degrees to get the rotation angles
-    # E.g. if the difference is [0, 0, 2], 
-    # then the rotation is 90 degrees around the z-axis
-    pass
-
-org_vector = np.array([-1, -1, -1])
-new_vector = np.array([1, -1, 1])
-delta_vector = new_vector-org_vector
-angles = [45 * x for x in delta_vector]
-
-face_vector = np.array([-1, 0, 0])
-
-#rotated_face_vector = rotate_vector(org_vector, angles)
-
 
