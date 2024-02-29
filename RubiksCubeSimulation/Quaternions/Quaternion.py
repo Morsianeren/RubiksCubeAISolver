@@ -55,8 +55,11 @@ class Quaternion():
 
     @property
     def euler_angles(self):
+        pass
 
 
+# Link to functions:
+# https://www.meccanismocomplesso.org/en/hamiltons-quaternions-and-3d-rotation-with-python/
 
 def qv_multiply(q:Quaternion, v:np.array) -> Quaternion:
     q1 = q
