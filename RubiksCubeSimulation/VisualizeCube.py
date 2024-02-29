@@ -53,6 +53,8 @@ def rotate_vector(face_vector: list, original_coordinate: list, new_coordinate: 
     a_rotated = np.dot(R_combined, point_a)
     b_rotated = np.dot(R_combined, point_b)
 
+    # I have run into the Gimbal lock problem...
+
     new_face_vector = b_rotated - a_rotated
 
     return new_face_vector
