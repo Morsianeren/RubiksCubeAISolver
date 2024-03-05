@@ -1,4 +1,6 @@
+# %%
 import numpy as np
+import matplotlib.pyplot as plt
 
 class Quaternion():
     def __init__(self, w=0., x=0., y=0., z=0., v=None) -> None:
@@ -6,6 +8,9 @@ class Quaternion():
         self._v = np.array([x, y, z])
         if v is not None:
             self._v = v
+
+    def __str__(self):
+        return f"Quaternion({self.w} + {self.x}i + {self.y}j + {self.z}k)"
 
     # Getters
     @property
@@ -55,9 +60,14 @@ class Quaternion():
 
     @property
     def euler_angles(self):
-        pass
-
-
+        return quaternion_to_euler(self)
+    
+    def plot(self, ax = plt.Axes, color='r'):
+        # First get euler angles
+        euler = self.euler_angles
+        print("Euler angles: ", euler)
+        ax.quiver(0, 0, 0, euler[0], euler[1], euler[2], color=color)
+        
 # Link to functions:
 # https://www.meccanismocomplesso.org/en/hamiltons-quaternions-and-3d-rotation-with-python/
 
@@ -76,32 +86,61 @@ def qq_multiply(q1:Quaternion, q2:Quaternion) -> Quaternion:
     z = w1 * z2 + z1 * w2 + x1 * y2 - y1 * x2
     return Quaternion(w, x, y, z)
 
-def euler_to_quaternion(phi, theta, psi):
- 
-        qw = np.cos(phi/2) * np.cos(theta/2) * np.cos(psi/2) + np.sin(phi/2) * np.sin(theta/2) * np.sin(psi/2)
-        qx = np.sin(phi/2) * np.cos(theta/2) * np.cos(psi/2) - np.cos(phi/2) * np.sin(theta/2) * np.sin(psi/2)
-        qy = np.cos(phi/2) * np.sin(theta/2) * np.cos(psi/2) + np.sin(phi/2) * np.cos(theta/2) * np.sin(psi/2)
-        qz = np.cos(phi/2) * np.cos(theta/2) * np.sin(psi/2) - np.sin(phi/2) * np.sin(theta/2) * np.cos(psi/2)
- 
-        return Quaternion(qw, qx, qy, qz)
+def euler_to_quaternion(phi, theta, psi) -> Quaternion:
+    qw = np.cos(phi/2) * np.cos(theta/2) * np.cos(psi/2) + np.sin(phi/2) * np.sin(theta/2) * np.sin(psi/2)
+    qx = np.sin(phi/2) * np.cos(theta/2) * np.cos(psi/2) - np.cos(phi/2) * np.sin(theta/2) * np.sin(psi/2)
+    qy = np.cos(phi/2) * np.sin(theta/2) * np.cos(psi/2) + np.sin(phi/2) * np.cos(theta/2) * np.sin(psi/2)
+    qz = np.cos(phi/2) * np.cos(theta/2) * np.sin(psi/2) - np.sin(phi/2) * np.sin(theta/2) * np.cos(psi/2)
 
-def quaternion_to_euler(q: Quaternion):
-        w = q.w        
-        x = q.x
-        y = q.y
-        z = q.z
+    return Quaternion(qw, qx, qy, qz)
 
-        t0 = 2 * (w * x + y * z)
-        t1 = 1 - 2 * (x * x + y * y)
-        X = np.atan2(t0, t1)
- 
-        t2 = 2 * (w * y - z * x)
-        t2 = 1 if t2 > 1 else t2
-        t2 = -1 if t2 < -1 else t2
-        Y = np.asin(t2)
-         
-        t3 = 2 * (w * z + x * y)
-        t4 = 1 - 2 * (y * y + z * z)
-        Z = np.atan2(t3, t4)
- 
-        return X, Y, Z
+def quaternion_to_euler(q: Quaternion) -> list:
+    w = q.w        
+    x = q.x
+    y = q.y
+    z = q.z
+
+    t0 = 2 * (w * x + y * z)
+    t1 = 1 - 2 * (x * x + y * y)
+    X = np.arctan2(t0, t1)
+
+    t2 = 2 * (w * y - z * x)
+    t2 = 1 if t2 > 1 else t2
+    t2 = -1 if t2 < -1 else t2
+    Y = np.arcsin(t2)
+        
+    t3 = 2 * (w * z + x * y)
+    t4 = 1 - 2 * (y * y + z * z)
+    Z = np.arctan2(t3, t4)
+
+    return [X, Y, Z]
+
+def plot_quaternion(q: Quaternion):
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    # Cartesian axes
+    ax.quiver(-1, 0, 0, 3, 0, 0, color='#aaaaaa',linestyle='dashed')
+    ax.quiver(0, -1, 0, 0,3, 0, color='#aaaaaa',linestyle='dashed')
+    ax.quiver(0, 0, -1, 0, 0, 3, color='#aaaaaa',linestyle='dashed')
+    # Vector after rotation
+    ax.quiver(0, 0, 0, 0, 0.71, -0.71, color='r')
+    ax.set_xlim([-1.5, 1.5])
+    ax.set_ylim([-1.5, 1.5])
+    ax.set_zlim([-1.5, 1.5])
+    plt.show()
+
+
+# Test code
+v = Quaternion(0, 1, 1, 1)
+
+q = Quaternion(0.5, 0, 0.5, 0)
+
+v_new = q * v * q.conjugate
+
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+v.plot(ax, 'b')
+v_new.plot(ax, 'r')
+ax.set_xlim([-1.5, 1.5])
+ax.set_ylim([-1.5, 1.5])
+ax.set_zlim([-1.5, 1.5])
