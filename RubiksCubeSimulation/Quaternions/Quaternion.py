@@ -1,13 +1,15 @@
 # %%
 import numpy as np
 import matplotlib.pyplot as plt
+from dataclasses import dataclass
 
+@dataclass
 class Quaternion():
-    def __init__(self, w=0., x=0., y=0., z=0., v=None) -> None:
-        self._w = w
-        self._v = np.array([x, y, z])
-        if v is not None:
-            self._v = v
+    q: np.ndarray = np.array([0., 0., 0., 0.])
+
+    def __post_init__(self):
+        if len(self.q) != 4:
+            raise ValueError("Quaternion array must have length 4. Got: ", self.q)
 
     def __str__(self):
         return f"Quaternion({self.w} + {self.x}i + {self.y}j + {self.z}k)"
@@ -15,52 +17,58 @@ class Quaternion():
     # Getters
     @property
     def w(self):
-        return self._w
+        return self.q[0]
+
     @property
     def x(self):
-        return self._v[0]
+        return self.q[1]
+
     @property
     def y(self):
-        return self._v[1]
+        return self.q[2]
+
     @property
     def z(self):
-        return self._v[2]
+        return self.q[3]
+
     @property
     def v(self):
-        return self._v
+        return self.q[1:]
     
     # Setters
     @w.setter
     def w(self, value):
-        self._w = value
+        self.q[0] = value
     @x.setter
     def x(self, value):
-        self._v[0] = value
+        self.q[1] = value
     @y.setter
     def y(self, value):
-        self._v[1] = value
+        self.q[2] = value
     @z.setter
     def z(self, value):
-        self._v[2] = value
+        self.q[3] = value
     @v.setter
     def v(self, value):
-        self._v = value
+        if len(value) != 3:
+            raise ValueError("Value must be a 3-element array.")
+        self.q[1:] = value
     
     @property
     def conjugate(self):
-        return Quaternion(self.w, -self.x, -self.y, -self.z)
+        return Quaternion(np.array[self.w, -self.x, -self.y, -self.z])
     
     def __mul__(self, other):
         if isinstance(other, Quaternion):
             return qq_multiply(self, other)
-        elif len(other) == 3:
+        elif len(other) == 3: # Vector
             return qv_multiply(self, other)
         else:
             raise ValueError("The object must be a Quaternion or have len 3: ", other, type(other))
 
     def __pow__(self, exponent):
         if exponent == 0:
-            return Quaternion(1, 0, 0, 0)
+            return Quaternion([1, 0, 0, 0])
         #elif exponent == -1:
         #    return self.conjugate / self.magnitude
         else:
@@ -75,21 +83,22 @@ class Quaternion():
     def magnitude(self):
         return quaternion_magnitude(self)
     
-    def plot(self, **kwargs):
-        # First get euler angles
-        #euler = self.euler_angles
-        #print("Euler angles: ", euler)
-        x = self.x
-        y = self.y
-        z = self.z
-        plt.quiver(0, 0, 0, x, y, z, **kwargs)
+
+def plot_quaternion(q: Quaternion, **kwargs):
+    # First get euler angles
+    #euler = self.euler_angles
+    #print("Euler angles: ", euler)
+    x = q.x
+    y = q.y
+    z = q.z
+    plt.quiver(0, 0, 0, x, y, z, **kwargs)
         
 # Link to functions:
 # https://www.meccanismocomplesso.org/en/hamiltons-quaternions-and-3d-rotation-with-python/
 
 def qv_multiply(q:Quaternion, v:np.array) -> Quaternion:
     q1 = q
-    q2 = Quaternion(w=0, v=v)
+    q2 = Quaternion(np.array[0, v])
     return qq_multiply(q1, q2)
 
 
@@ -100,7 +109,7 @@ def qq_multiply(q1:Quaternion, q2:Quaternion) -> Quaternion:
     x = w1 * x2 + x1 * w2 + y1 * z2 - z1 * y2
     y = w1 * y2 + y1 * w2 + z1 * x2 - x1 * z2
     z = w1 * z2 + z1 * w2 + x1 * y2 - y1 * x2
-    return Quaternion(w, x, y, z)
+    return Quaternion(np.array([w, x, y, z]))
 
 def euler_to_quaternion(phi, theta, psi) -> Quaternion:
     qw = np.cos(phi/2) * np.cos(theta/2) * np.cos(psi/2) + np.sin(phi/2) * np.sin(theta/2) * np.sin(psi/2)
@@ -108,7 +117,7 @@ def euler_to_quaternion(phi, theta, psi) -> Quaternion:
     qy = np.cos(phi/2) * np.sin(theta/2) * np.cos(psi/2) + np.sin(phi/2) * np.cos(theta/2) * np.sin(psi/2)
     qz = np.cos(phi/2) * np.cos(theta/2) * np.sin(psi/2) - np.sin(phi/2) * np.sin(theta/2) * np.cos(psi/2)
 
-    return Quaternion(qw, qx, qy, qz)
+    return Quaternion(np.array([qw, qx, qy, qz]))
 
 def quaternion_to_euler(q: Quaternion) -> list:
     w = q.w        
@@ -168,14 +177,14 @@ def quaternion_power(q:Quaternion, n):
     # Calculate the scalar part of the result
     w = magnitude_powered * np.cos(n * theta)
     
-    return Quaternion(w, x, y, z)
+    return Quaternion([w, x, y, z])
 
 # Test code
-v_x = Quaternion(0, 1, 0, 0)
-v_y = Quaternion(0, 0, 1, 0)
-v_z = Quaternion(0, 0, 0, 1)
+v_x = Quaternion(np.array([0, 1, 0, 0]))
+v_y = Quaternion(np.array([0, 0, 1, 0]))
+v_z = Quaternion(np.array([0, 0, 0, 1]))
 
-q = Quaternion(0.5, 0.5, 0., .5)
+q = Quaternion(np.array([0.5, 0.5, 0., .5]))
 
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
@@ -185,8 +194,8 @@ for c, v in {'r':v_x, 'g':v_y, 'b':v_z}.items():
     q_inv = q ** -1
     v_new = q * v * q_inv
     print(v)
-    v.plot(color=c, linestyle='-')
-    v_new.plot(color=c, linestyle='-.')
+    plot_quaternion(v, color=c, linestyle='-')
+    plot_quaternion(v_new, color=c, linestyle='-.')
 
 ax.set_xlim([-1.5, 1.5])
 ax.set_ylim([-1.5, 1.5])
