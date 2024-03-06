@@ -79,8 +79,6 @@ class Quaternion():
         elif exponent == -1:
             conjugate = self.conjugate
             magnitude = self.square_magnitude
-            #print("Conjugate: ", conjugate)
-            #print("Magnitude: ", magnitude)
             return conjugate / magnitude
         else:
             return quaternion_power(self, exponent)
@@ -93,19 +91,13 @@ class Quaternion():
     @property
     def square_magnitude(self):
         return quaternion_square_magnitude(self)
-    
 
-def plot_quaternion(q: Quaternion, **kwargs):
-    # First get euler angles
-    #euler = self.euler_angles
-    #print("Euler angles: ", euler)
-    x = q.x
-    y = q.y
-    z = q.z
-    plt.quiver(0, 0, 0, x, y, z, **kwargs)
-        
-# Link to functions:
-# https://www.meccanismocomplesso.org/en/hamiltons-quaternions-and-3d-rotation-with-python/
+    def plot(self, **kwargs):
+        # This function plots the quaternion as a vector in 3D space
+        x = self.x
+        y = self.y
+        z = self.z
+        plt.quiver(0, 0, 0, x, y, z, **kwargs)
 
 def qv_multiply(q:Quaternion, v:np.array) -> Quaternion:
     q1 = q
@@ -225,8 +217,8 @@ for c, v in {'r':v_x, 'g':v_y, 'b':v_z}.items():
     v_new = q * v * q_inv
     print(v)
     print(str(v_new) + '\n')
-    plot_quaternion(v, color=c, linestyle='-')
-    plot_quaternion(v_new, color=c, linestyle='-.')
+    v.plot(color=c, linestyle='-')
+    v_new.plot(color=c, linestyle='-.')
 
 ax.set_xlim([-1.5, 1.5])
 ax.set_ylim([-1.5, 1.5])
