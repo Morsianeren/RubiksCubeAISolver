@@ -3,9 +3,28 @@ import numpy as np
 import matplotlib.pyplot as plt
 from dataclasses import dataclass
 
+# Descriptor class for quaternion components
+# This dataclass simply allows us to access the individual components of the quaternion
+class QuaternionComponent:
+    def __init__(self, name):
+        self.name = name
+
+    def __get__(self, instance, owner):
+        return instance.q[owner._components.index(self.name)]
+
+    def __set__(self, instance, value):
+        idx = instance._components.index(self.name)
+        instance.q[idx] = value
+
 @dataclass
 class Quaternion():
+    # The values of the quaternion is stored in a 4-element array
     q: np.ndarray = np.array([0., 0., 0., 0.])
+    # Each individual component is accessed through a descriptor
+    w = QuaternionComponent('w')
+    x = QuaternionComponent('x')
+    y = QuaternionComponent('y')
+    z = QuaternionComponent('z')
 
     def __post_init__(self):
         if len(self.q) != 4:
@@ -16,38 +35,10 @@ class Quaternion():
 
     # Getters
     @property
-    def w(self):
-        return self.q[0]
-
-    @property
-    def x(self):
-        return self.q[1]
-
-    @property
-    def y(self):
-        return self.q[2]
-
-    @property
-    def z(self):
-        return self.q[3]
-
-    @property
     def v(self):
         return self.q[1:]
     
     # Setters
-    @w.setter
-    def w(self, value):
-        self.q[0] = value
-    @x.setter
-    def x(self, value):
-        self.q[1] = value
-    @y.setter
-    def y(self, value):
-        self.q[2] = value
-    @z.setter
-    def z(self, value):
-        self.q[3] = value
     @v.setter
     def v(self, value):
         if len(value) != 3:
@@ -56,7 +47,7 @@ class Quaternion():
     
     @property
     def conjugate(self):
-        return Quaternion(np.array[self.w, -self.x, -self.y, -self.z])
+        return Quaternion(np.array([self.w, -self.x, -self.y, -self.z]))
     
     def __mul__(self, other):
         if isinstance(other, Quaternion):
@@ -98,7 +89,7 @@ def plot_quaternion(q: Quaternion, **kwargs):
 
 def qv_multiply(q:Quaternion, v:np.array) -> Quaternion:
     q1 = q
-    q2 = Quaternion(np.array[0, v])
+    q2 = Quaternion(np.array([0, v]))
     return qq_multiply(q1, q2)
 
 
