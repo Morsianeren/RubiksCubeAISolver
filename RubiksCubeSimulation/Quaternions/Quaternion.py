@@ -21,6 +21,7 @@ class Quaternion():
     # The values of the quaternion is stored in a 4-element array
     q: np.ndarray = np.array([0., 0., 0., 0.])
     # Each individual component is accessed through a descriptor
+    _components = ['w', 'x', 'y', 'z']
     w = QuaternionComponent('w')
     x = QuaternionComponent('x')
     y = QuaternionComponent('y')
@@ -57,11 +58,30 @@ class Quaternion():
         else:
             raise ValueError("The object must be a Quaternion or have len 3: ", other, type(other))
 
+    def __truediv__(self, other):
+        # Implement division by scalar
+        if isinstance(other, (int, float)):
+            w = self.w / other
+            x = self.x / other
+            y = self.y / other
+            z = self.z / other
+            return Quaternion(np.array([w, x, y, z]))
+        # Implement division by another quaternion (element-wise division)
+        elif isinstance(other, Quaternion):
+            return self * other.inverse
+        else:
+            raise ValueError("Unsupported operand type(s) for /: ", type(self), type(other))
+
+
     def __pow__(self, exponent):
         if exponent == 0:
             return Quaternion([1, 0, 0, 0])
-        #elif exponent == -1:
-        #    return self.conjugate / self.magnitude
+        elif exponent == -1:
+            conjugate = self.conjugate
+            magnitude = self.square_magnitude
+            #print("Conjugate: ", conjugate)
+            #print("Magnitude: ", magnitude)
+            return conjugate / magnitude
         else:
             return quaternion_power(self, exponent)
 
@@ -71,8 +91,8 @@ class Quaternion():
         return quaternion_to_euler(self)
     
     @property
-    def magnitude(self):
-        return quaternion_magnitude(self)
+    def square_magnitude(self):
+        return quaternion_square_magnitude(self)
     
 
 def plot_quaternion(q: Quaternion, **kwargs):
@@ -131,7 +151,7 @@ def quaternion_to_euler(q: Quaternion) -> list:
 
     return [X, Y, Z]
 
-def quaternion_magnitude(q: Quaternion):
+def quaternion_square_magnitude(q: Quaternion):
     # Extract components of the quaternion
     q0 = q.w
     q1 = q.x
@@ -170,12 +190,31 @@ def quaternion_power(q:Quaternion, n):
     
     return Quaternion([w, x, y, z])
 
+def quaternion_inverse(q: Quaternion):
+        # Calculate the conjugate
+        conjugate = Quaternion(np.array([q.w, -q.x, -q.y, -q.z]))
+        
+        # Calculate the magnitude squared
+        magnitude_squared = quaternion_square_magnitude(q)
+        
+        # Check if the quaternion is non-zero to avoid division by zero
+        if magnitude_squared == 0:
+            raise ZeroDivisionError("Cannot compute inverse for a zero quaternion.")
+        
+        # Calculate the inverse using the formula: conjugate / magnitude squared
+        return conjugate / magnitude_squared
+
 # Test code
 v_x = Quaternion(np.array([0, 1, 0, 0]))
 v_y = Quaternion(np.array([0, 0, 1, 0]))
 v_z = Quaternion(np.array([0, 0, 0, 1]))
 
-q = Quaternion(np.array([0.5, 0.5, 0., .5]))
+d = 90 # Degrees to rotate around the z-axis
+
+w1 = np.cos(d * np.pi/360)
+w2 = np.sin(d * np.pi/360)
+
+q = Quaternion(np.array([w1, 0., 0., 1.*w2]))
 
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
@@ -185,6 +224,7 @@ for c, v in {'r':v_x, 'g':v_y, 'b':v_z}.items():
     q_inv = q ** -1
     v_new = q * v * q_inv
     print(v)
+    print(str(v_new) + '\n')
     plot_quaternion(v, color=c, linestyle='-')
     plot_quaternion(v_new, color=c, linestyle='-.')
 
