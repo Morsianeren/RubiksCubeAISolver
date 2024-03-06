@@ -58,15 +58,31 @@ class Quaternion():
         else:
             raise ValueError("The object must be a Quaternion or have len 3: ", other, type(other))
 
+    def __pow__(self, exponent):
+        if exponent == 0:
+            return Quaternion(1, 0, 0, 0)
+        #elif exponent == -1:
+        #    return self.conjugate / self.magnitude
+        else:
+            return quaternion_power(self, exponent)
+
+
     @property
     def euler_angles(self):
         return quaternion_to_euler(self)
     
-    def plot(self, ax = plt.Axes, color='r'):
+    @property
+    def magnitude(self):
+        return quaternion_magnitude(self)
+    
+    def plot(self, **kwargs):
         # First get euler angles
-        euler = self.euler_angles
-        print("Euler angles: ", euler)
-        ax.quiver(0, 0, 0, euler[0], euler[1], euler[2], color=color)
+        #euler = self.euler_angles
+        #print("Euler angles: ", euler)
+        x = self.x
+        y = self.y
+        z = self.z
+        plt.quiver(0, 0, 0, x, y, z, **kwargs)
         
 # Link to functions:
 # https://www.meccanismocomplesso.org/en/hamiltons-quaternions-and-3d-rotation-with-python/
@@ -115,32 +131,64 @@ def quaternion_to_euler(q: Quaternion) -> list:
 
     return [X, Y, Z]
 
-def plot_quaternion(q: Quaternion):
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
-    # Cartesian axes
-    ax.quiver(-1, 0, 0, 3, 0, 0, color='#aaaaaa',linestyle='dashed')
-    ax.quiver(0, -1, 0, 0,3, 0, color='#aaaaaa',linestyle='dashed')
-    ax.quiver(0, 0, -1, 0, 0, 3, color='#aaaaaa',linestyle='dashed')
-    # Vector after rotation
-    ax.quiver(0, 0, 0, 0, 0.71, -0.71, color='r')
-    ax.set_xlim([-1.5, 1.5])
-    ax.set_ylim([-1.5, 1.5])
-    ax.set_zlim([-1.5, 1.5])
-    plt.show()
+def quaternion_magnitude(q: Quaternion):
+    # Extract components of the quaternion
+    q0 = q.w
+    q1 = q.x
+    q2 = q.y
+    q3 = q.z
+    
+    # Calculate the magnitude
+    magnitude = np.sqrt(q0**2 + q1**2 + q2**2 + q3**2)
+    
+    return magnitude
 
+def quaternion_power(q:Quaternion, n):
+    # Extract components of the quaternion
+    q0 = q.w
+    q1 = q.x
+    q2 = q.y
+    q3 = q.z
+    
+    # Calculate the magnitude of the vector part
+    v_magnitude = np.sqrt(q1**2 + q2**2 + q3**2)
+    
+    # Calculate the angle between the vector part and the axis of rotation
+    theta = np.arccos(q0 / np.sqrt(q0**2 + v_magnitude**2))
+    
+    # Calculate the magnitude raised to the power of n
+    magnitude_powered = (q0**2 + v_magnitude**2)**(n / 2)
+    
+    # Calculate the vector part of the result
+    t = np.sin(n * theta)
+    x = (q1 / v_magnitude) * t
+    y = (q2 / v_magnitude) * t
+    z = (q3 / v_magnitude) * t
+    
+    # Calculate the scalar part of the result
+    w = magnitude_powered * np.cos(n * theta)
+    
+    return Quaternion(w, x, y, z)
 
 # Test code
-v = Quaternion(0, 1, 1, 1)
+v_x = Quaternion(0, 1, 0, 0)
+v_y = Quaternion(0, 0, 1, 0)
+v_z = Quaternion(0, 0, 0, 1)
 
-q = Quaternion(0.5, 0, 0.5, 0)
-
-v_new = q * v * q.conjugate
+q = Quaternion(0.5, 0.5, 0., .5)
 
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
-v.plot(ax, 'b')
-v_new.plot(ax, 'r')
+
+for c, v in {'r':v_x, 'g':v_y, 'b':v_z}.items():
+    # Passive rotation
+    q_inv = q ** -1
+    v_new = q * v * q_inv
+    print(v)
+    v.plot(color=c, linestyle='-')
+    v_new.plot(color=c, linestyle='-.')
+
 ax.set_xlim([-1.5, 1.5])
 ax.set_ylim([-1.5, 1.5])
 ax.set_zlim([-1.5, 1.5])
+ax.legend(['v', 'v new'])
