@@ -215,8 +215,6 @@ for c, v in {'r':v_x, 'g':v_y, 'b':v_z}.items():
     # Passive rotation
     q_inv = q ** -1
     v_new = q * v * q_inv
-    print(v)
-    print(str(v_new) + '\n')
     v.plot(color=c, linestyle='-')
     v_new.plot(color=c, linestyle='-.')
 
