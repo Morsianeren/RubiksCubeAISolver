@@ -150,19 +150,19 @@ def get_vertices(direction_vector):
 # Test code
 
 # Create a piece
-piece = Piece(0, 0, 0)
-piece.rotate('x')
-
-# Set the colors
-piece.colors['x'] = "red"
-piece.colors['y'] = "green"
-piece.colors['z'] = "blue"
-
-# Plot the piece
-fig = plt.figure()
-ax = fig.add_subplot(111, projection='3d')
-piece.plot(ax)
-ax.set_xlim(-3, 3)
-ax.set_ylim(-3, 3)
-ax.set_zlim(-3, 3)
-plt.show()
+# piece = Piece(0, 0, 0)
+# piece.rotate('x')
+# 
+# # Set the colors
+# piece.colors['x'] = "red"
+# piece.colors['y'] = "green"
+# piece.colors['z'] = "blue"
+# 
+# # Plot the piece
+# fig = plt.figure()
+# ax = fig.add_subplot(111, projection='3d')
+# piece.plot(ax)
+# ax.set_xlim(-3, 3)
+# ax.set_ylim(-3, 3)
+# ax.set_zlim(-3, 3)
+# plt.show()
