@@ -27,36 +27,13 @@ class Quaternion():
     y = QuaternionComponent('y')
     z = QuaternionComponent('z')
 
+    # Magic methods
     def __post_init__(self):
         if len(self.q) != 4:
             raise ValueError("Quaternion array must have length 4. Got: ", self.q)
 
     def __str__(self):
         return f"Quaternion({self.w} + {self.x}i + {self.y}j + {self.z}k)"
-
-    # Getters
-    @property
-    def v(self):
-        return self.q[1:]
-    
-    # Setters
-    @v.setter
-    def v(self, value):
-        if len(value) != 3:
-            raise ValueError("Value must be a 3-element array.")
-        self.q[1:] = value
-    
-    @property
-    def conjugate(self):
-        return Quaternion(np.array([self.w, -self.x, -self.y, -self.z]))
-    
-    def __mul__(self, other):
-        if isinstance(other, Quaternion):
-            return qq_multiply(self, other)
-        elif len(other) == 3: # Vector
-            return qv_multiply(self, other)
-        else:
-            raise ValueError("The object must be a Quaternion or have len 3: ", other, type(other))
 
     def __truediv__(self, other):
         # Implement division by scalar
@@ -82,7 +59,29 @@ class Quaternion():
             return conjugate / magnitude
         else:
             return quaternion_power(self, exponent)
+    
+    def __mul__(self, other):
+        if isinstance(other, Quaternion):
+            return qq_multiply(self, other)
+        elif len(other) == 3: # Vector
+            return qv_multiply(self, other)
+        else:
+            raise ValueError("The object must be a Quaternion or have len 3: ", other, type(other))
 
+    # Properties
+    @property
+    def v(self):
+        return self.q[1:]
+    
+    @v.setter
+    def v(self, value):
+        if len(value) != 3:
+            raise ValueError("Value must be a 3-element array.")
+        self.q[1:] = value
+    
+    @property
+    def conjugate(self):
+        return Quaternion(np.array([self.w, -self.x, -self.y, -self.z]))
 
     @property
     def euler_angles(self):
@@ -92,16 +91,30 @@ class Quaternion():
     def square_magnitude(self):
         return quaternion_square_magnitude(self)
 
+    # Methods
+    def normalized(self):
+        magnitude = self.square_magnitude
+        if magnitude == 0:
+            raise ZeroDivisionError("Cannot normalize a zero quaternion.")
+        return Quaternion(self.q / np.sqrt(magnitude))
+
+    def get_xyz_vectors(self):
+        return get_direction_vectors(self)
+
     def plot(self, **kwargs):
         # This function plots the quaternion as a vector in 3D space
-        x = self.x
-        y = self.y
-        z = self.z
-        plt.quiver(0, 0, 0, x, y, z, **kwargs)
+        x, y, z = self.get_xyz_vectors()
+        #x = self.x
+        #y = self.y
+        #z = self.z
+        #plt.quiver(0, 0, 0, x, y, z, **kwargs)
+        plt.quiver(0, 0, 0, x[0], x[1], x[2], color='r')
+        plt.quiver(0, 0, 0, y[0], y[1], y[2], color='g')
+        plt.quiver(0, 0, 0, z[0], z[1], z[2], color='b')
 
-def qv_multiply(q:Quaternion, v:np.array) -> Quaternion:
-    q1 = q
-    q2 = Quaternion(np.array([0, v]))
+def qv_multiply(quat: Quaternion, vector: np.array) -> Quaternion:
+    q1 = quat
+    q2 = Quaternion(np.array([0, vector]))
     return qq_multiply(q1, q2)
 
 
@@ -122,11 +135,11 @@ def euler_to_quaternion(phi, theta, psi) -> Quaternion:
 
     return Quaternion(np.array([qw, qx, qy, qz]))
 
-def quaternion_to_euler(q: Quaternion) -> list:
-    w = q.w        
-    x = q.x
-    y = q.y
-    z = q.z
+def quaternion_to_euler(quat: Quaternion) -> list:
+    w = quat.w        
+    x = quat.x
+    y = quat.y
+    z = quat.z
 
     t0 = 2 * (w * x + y * z)
     t1 = 1 - 2 * (x * x + y * y)
@@ -143,24 +156,24 @@ def quaternion_to_euler(q: Quaternion) -> list:
 
     return [X, Y, Z]
 
-def quaternion_square_magnitude(q: Quaternion):
+def quaternion_square_magnitude(quat: Quaternion):
     # Extract components of the quaternion
-    q0 = q.w
-    q1 = q.x
-    q2 = q.y
-    q3 = q.z
+    q0 = quat.w
+    q1 = quat.x
+    q2 = quat.y
+    q3 = quat.z
     
     # Calculate the magnitude
     magnitude = np.sqrt(q0**2 + q1**2 + q2**2 + q3**2)
     
     return magnitude
 
-def quaternion_power(q:Quaternion, n):
+def quaternion_power(quat: Quaternion, n):
     # Extract components of the quaternion
-    q0 = q.w
-    q1 = q.x
-    q2 = q.y
-    q3 = q.z
+    q0 = quat.w
+    q1 = quat.x
+    q2 = quat.y
+    q3 = quat.z
     
     # Calculate the magnitude of the vector part
     v_magnitude = np.sqrt(q1**2 + q2**2 + q3**2)
@@ -182,12 +195,12 @@ def quaternion_power(q:Quaternion, n):
     
     return Quaternion([w, x, y, z])
 
-def quaternion_inverse(q: Quaternion):
+def quaternion_inverse(quat: Quaternion):
         # Calculate the conjugate
-        conjugate = Quaternion(np.array([q.w, -q.x, -q.y, -q.z]))
+        conjugate = Quaternion(np.array([quat.w, -quat.x, -quat.y, -quat.z]))
         
         # Calculate the magnitude squared
-        magnitude_squared = quaternion_square_magnitude(q)
+        magnitude_squared = quaternion_square_magnitude(quat)
         
         # Check if the quaternion is non-zero to avoid division by zero
         if magnitude_squared == 0:
@@ -196,29 +209,53 @@ def quaternion_inverse(q: Quaternion):
         # Calculate the inverse using the formula: conjugate / magnitude squared
         return conjugate / magnitude_squared
 
+def quaternion_to_rotation_matrix(quat: Quaternion):
+    """Convert quaternion to rotation matrix."""
+    q_normalized = quat.normalized()
+    w = q_normalized.w
+    x = q_normalized.x
+    y = q_normalized.y
+    z = q_normalized.z
+    rotation_matrix = np.array([
+        [1 - 2*(y**2 + z**2), 2*(x*y - w*z), 2*(x*z + w*y)],
+        [2*(x*y + w*z), 1 - 2*(x**2 + z**2), 2*(y*z - w*x)],
+        [2*(x*z - w*y), 2*(y*z + w*x), 1 - 2*(x**2 + y**2)]
+    ])
+    return rotation_matrix
+
+def get_direction_vectors(quat: Quaternion):
+    """Get vectors pointing in x, y, and z directions relative to the quaternion."""
+    rotation_matrix = quaternion_to_rotation_matrix(quat)
+    x_vector = rotation_matrix[:, 0]  # Vector along x-axis
+    y_vector = rotation_matrix[:, 1]  # Vector along y-axis
+    z_vector = rotation_matrix[:, 2]  # Vector along z-axis
+    return x_vector, y_vector, z_vector
+
 # Test code
-v_x = Quaternion(np.array([0, 1, 0, 0]))
-v_y = Quaternion(np.array([0, 0, 1, 0]))
-v_z = Quaternion(np.array([0, 0, 0, 1]))
-
-d = 90 # Degrees to rotate around the z-axis
-
-w1 = np.cos(d * np.pi/360)
-w2 = np.sin(d * np.pi/360)
-
-q = Quaternion(np.array([w1, 0., 0., 1.*w2]))
-
-fig = plt.figure()
-ax = fig.add_subplot(111, projection='3d')
-
-for c, v in {'r':v_x, 'g':v_y, 'b':v_z}.items():
-    # Passive rotation
-    q_inv = q ** -1
-    v_new = q * v * q_inv
-    v.plot(color=c, linestyle='-')
-    v_new.plot(color=c, linestyle='-.')
-
-ax.set_xlim([-1.5, 1.5])
-ax.set_ylim([-1.5, 1.5])
-ax.set_zlim([-1.5, 1.5])
-ax.legend(['v', 'v new'])
+#v_x = Quaternion(np.array([1, 0, 0, 0]))
+#v_y = Quaternion(np.array([0, 0, 1, 0]))
+#v_z = Quaternion(np.array([0, 0, 0, 1]))
+#
+#d = 90 # Degrees to rotate around the z-axis
+#
+#w1 = np.cos(d * np.pi/360)
+#w2 = np.sin(d * np.pi/360)
+#
+#q = Quaternion(np.array([w1, 0., 0., 1.*w2]))
+#
+#fig = plt.figure()
+#ax = fig.add_subplot(111, projection='3d')
+#
+#v_x.plot()
+#
+##for c, v in {'r':v_x, 'g':v_y, 'b':v_z}.items():
+##    # Passive rotation
+##    q_inv = q ** -1
+##    v_new = q * v * q_inv
+##    v.plot(color=c, linestyle='-')
+##    v_new.plot(color=c, linestyle='-.')
+#
+#ax.set_xlim([-1.5, 1.5])
+#ax.set_ylim([-1.5, 1.5])
+#ax.set_zlim([-1.5, 1.5])
+#ax.legend(['v', 'v new'])
