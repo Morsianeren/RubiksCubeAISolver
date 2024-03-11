@@ -26,7 +26,8 @@ class Piece():
         self._INITIAL_POSITION = np.array([x_pos, y_pos, z_pos], dtype=int)
 
         # The colors of the piece
-        self.colors = {'x': None, 'y': None, 'z': None}
+        self.colors = {'x': None, 'y': None, 'z': None,
+                       '-x': None, '-y': None, '-z': None}
 
     def rotate(self, axis: Literal['x', 'y', 'z']) -> None:
         """Rotate the piece 90 degrees around the given axis."""
@@ -47,21 +48,29 @@ class Piece():
         self.orientation = self._INITIAL_ORIENTATION
         self.position = self._INITIAL_POSITION
 
-    def plot(self, ax) -> None:
+    def plot(self, ax, style:Literal['square', 'arrows'] = 'square', **kwargs) -> None:
         """Plot the piece in 3D space."""
         x_vector, y_vector, z_vector = self.orientation.get_xyz_vectors()
-        vectors = [x_vector, y_vector, z_vector]
+        vectors = [x_vector, y_vector, z_vector, -x_vector, -y_vector, -z_vector]
         colors = self.colors.values()
 
         iterations = 0
 
-        for vector, color in zip(vectors, colors):
-            if color is None:
-                continue
-            iterations += 1
-            center = self.position + vector
-            vertices = get_translated_vertices(vector, center)
-            ax.add_collection3d(Poly3DCollection([vertices], facecolors=color, edgecolors="black"))
+        if style == 'square':
+            for vector, color in zip(vectors, colors):
+                if color is None:
+                    continue
+                iterations += 1
+                center = self.position + vector
+                vertices = get_translated_vertices(vector, center)
+                ax.add_collection3d(Poly3DCollection([vertices], facecolors=color, edgecolors="black", **kwargs))
+        elif style == 'arrows':
+            for vector, color in zip(vectors, colors):
+                if color is None:
+                    continue
+                iterations += 1
+                center = self.position + vector
+                ax.quiver(center[0], center[1], center[2], vector[0], vector[1], vector[2], color=color, **kwargs)
 
         if iterations == 0:
             print("Warning: No colors were set for the piece and therefore it will not be plotted.")
