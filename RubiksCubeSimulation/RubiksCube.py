@@ -10,7 +10,6 @@ from Piece import Piece
 import matplotlib.pyplot as plt
 import numpy as np
 
-# Create a empty array to store the pieces
 pieces = np.zeros((3, 3, 3), dtype=Piece)
 
 # Initialize the pieces
@@ -54,3 +53,14 @@ ax.set_xlim(-8, 8)
 ax.set_ylim(-8, 8)
 ax.set_zlim(-8, 8)
 plt.show()
+
+# After this there is no need for the array to be 3x3x3
+# since rotation will mess up the indexing
+pieces = pieces.flatten()
+
+def rotate_side(pieces, axis, direction):
+    # Create a copy of the pieces
+    pieces_copy = pieces.copy()
+    for piece in pieces_copy:
+        piece.rotate(axis, direction)
+    return pieces_copy

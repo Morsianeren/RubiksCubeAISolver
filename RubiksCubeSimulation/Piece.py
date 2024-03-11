@@ -3,7 +3,6 @@ from typing import Literal
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
-#from Quaternion import Quaternion
 try:
     from Quaternions.Quaternion import Quaternion
 except ModuleNotFoundError:
@@ -31,17 +30,19 @@ class Piece():
 
     def rotate(self, axis: Literal['x', 'y', 'z']) -> None:
         """Rotate the piece 90 degrees around the given axis."""
-        sqrt2 = np.sqrt(2)
         if axis == 'x':
             rotation_quaternion = Quaternion([COS_ROTATION, SIN_ROTATION, 0, 0])
             #self.orientation = Quaternion([0, 1, 0, 0]) * self.orientation
         elif axis == 'y':
-            self.orientation = Quaternion([0, 0, 1, 0]) * self.orientation
+            rotation_quaternion = Quaternion([COS_ROTATION, 0, SIN_ROTATION, 0])
+            #self.orientation = Quaternion([0, 0, 1, 0]) * self.orientation
         elif axis == 'z':
-            self.orientation = Quaternion([0, 0, 0, 1]) * self.orientation
+            rotation_quaternion = Quaternion([COS_ROTATION, 0, 0, SIN_ROTATION])
+            #self.orientation = Quaternion([0, 0, 0, 1]) * self.orientation
         else:
             raise ValueError("Invalid axis. It should be 'x', 'y' or 'z'.")
         self.orientation = rotation_quaternion * self.orientation
+        self.position = rotate_coordinates_90_degrees(self.position, 'xyz'.index(axis))
         
     def reset(self) -> None:
         """Reset the piece to its initial position and orientation."""
@@ -155,23 +156,64 @@ def get_vertices(direction_vector):
 
     return vertices
 
+# Function from ChatGPT
+def rotate_coordinates_90_degrees(coordinates, axis):
+    """
+    Rotate XYZ coordinates 90 degrees around a given axis.
+
+    Parameters:
+        coordinates: numpy.ndarray
+            The input coordinates in the shape (3, N), where N is the number of points.
+        axis: int
+            The axis around which to rotate the coordinates (0 for x, 1 for y, 2 for z).
+
+    Returns:
+        numpy.ndarray
+            The rotated coordinates.
+    """
+    # Validate axis
+    if axis not in [0, 1, 2]:
+        raise ValueError("Axis must be 0, 1, or 2")
+
+    # Define rotation matrices for 90-degree rotations around each axis
+    if axis == 0:  # Rotate around X axis
+        rotation_matrix = np.array([[1, 0, 0],
+                                    [0, 0, -1],
+                                    [0, 1, 0]])
+    elif axis == 1:  # Rotate around Y axis
+        rotation_matrix = np.array([[0, 0, 1],
+                                    [0, 1, 0],
+                                    [-1, 0, 0]])
+    else:  # Rotate around Z axis
+        rotation_matrix = np.array([[0, -1, 0],
+                                    [1, 0, 0],
+                                    [0, 0, 1]])
+
+    # Apply rotation matrix to coordinates
+    rotated_coordinates = np.dot(rotation_matrix, coordinates)
+
+    return rotated_coordinates
+
 
 # Test code
 
 # Create a piece
-# piece = Piece(0, 0, 0)
-# piece.rotate('x')
-# 
-# # Set the colors
-# piece.colors['x'] = "red"
-# piece.colors['y'] = "green"
-# piece.colors['z'] = "blue"
-# 
-# # Plot the piece
-# fig = plt.figure()
-# ax = fig.add_subplot(111, projection='3d')
-# piece.plot(ax)
-# ax.set_xlim(-3, 3)
-# ax.set_ylim(-3, 3)
-# ax.set_zlim(-3, 3)
-# plt.show()
+#piece = Piece(4, 4, 0)
+#
+#print("Position before rotation:", piece.position)
+#piece.rotate('x')
+#print("Position after rotation:", piece.position)
+#
+## Set the colors
+#piece.colors['x'] = "red"
+#piece.colors['y'] = "green"
+#piece.colors['z'] = "blue"
+#
+## Plot the piece
+#fig = plt.figure()
+#ax = fig.add_subplot(111, projection='3d')
+#piece.plot(ax)
+#ax.set_xlim(-10, 10)
+#ax.set_ylim(-10, 10)
+#ax.set_zlim(-10, 10)
+#plt.show()
