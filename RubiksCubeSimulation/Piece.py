@@ -8,10 +8,6 @@ try:
 except ModuleNotFoundError:
     from Quaternion import Quaternion
 
-# Constants to rotate 90 degrees
-COS_ROTATION = np.cos(np.pi / 4)
-SIN_ROTATION = np.sin(np.pi / 4)
-
 class Piece():
     """This class represents a piece of the Rubik's Cube. 
     It has a position and orientation."""
@@ -28,21 +24,23 @@ class Piece():
         self.colors = {'x': None, 'y': None, 'z': None,
                        '-x': None, '-y': None, '-z': None}
 
-    def rotate(self, axis: Literal['x', 'y', 'z']) -> None:
-        """Rotate the piece 90 degrees around the given axis."""
+    def rotate(self, axis: Literal['x', 'y', 'z'], k: int) -> None:
+        """Rotate the piece k*90 degrees around the given axis."""
+        cos_part = np.cos(k * np.pi / 4)
+        sin_part = np.sin(k * np.pi / 4)
         if axis == 'x':
-            rotation_quaternion = Quaternion([COS_ROTATION, SIN_ROTATION, 0, 0])
+            rotation_quaternion = Quaternion([cos_part, sin_part, 0, 0])
             #self.orientation = Quaternion([0, 1, 0, 0]) * self.orientation
         elif axis == 'y':
-            rotation_quaternion = Quaternion([COS_ROTATION, 0, SIN_ROTATION, 0])
+            rotation_quaternion = Quaternion([cos_part, 0, sin_part, 0])
             #self.orientation = Quaternion([0, 0, 1, 0]) * self.orientation
         elif axis == 'z':
-            rotation_quaternion = Quaternion([COS_ROTATION, 0, 0, SIN_ROTATION])
+            rotation_quaternion = Quaternion([cos_part, 0, 0, sin_part])
             #self.orientation = Quaternion([0, 0, 0, 1]) * self.orientation
         else:
             raise ValueError("Invalid axis. It should be 'x', 'y' or 'z'.")
         self.orientation = rotation_quaternion * self.orientation
-        self.position = rotate_coordinates_90_degrees(self.position, 'xyz'.index(axis))
+        self.position = rotate_coordinates_90_degrees(self.position, axis, k)
         
     def reset(self) -> None:
         """Reset the piece to its initial position and orientation."""
@@ -68,13 +66,13 @@ class Piece():
         elif style == 'arrows':
             for vector, color in zip(vectors, colors):
                 if color is None:
-                    continue
+                    continue    
                 iterations += 1
                 center = self.position + vector
                 ax.quiver(center[0], center[1], center[2], vector[0], vector[1], vector[2], color=color, **kwargs)
 
         if iterations == 0:
-            print("Warning: No colors were set for the piece and therefore it will not be plotted.")
+            print(f"Warning: No colors were set for piece {self.position} and therefore it will not be plotted.")
 
 def get_translated_vertices(direction_vector, new_center):
     """This function generates the vertices of a square with a specified center and orientation.
@@ -157,9 +155,9 @@ def get_vertices(direction_vector):
     return vertices
 
 # Function from ChatGPT
-def rotate_coordinates_90_degrees(coordinates, axis):
+def rotate_coordinates_90_degrees(coordinates, axis:Literal['x', 'y', 'z'], k:int):
     """
-    Rotate XYZ coordinates 90 degrees around a given axis.
+    Rotate XYZ coordinates k*90 degrees around a given axis.
 
     Parameters:
         coordinates: numpy.ndarray
@@ -171,26 +169,31 @@ def rotate_coordinates_90_degrees(coordinates, axis):
         numpy.ndarray
             The rotated coordinates.
     """
-    # Validate axis
-    if axis not in [0, 1, 2]:
-        raise ValueError("Axis must be 0, 1, or 2")
 
     # Define rotation matrices for 90-degree rotations around each axis
-    if axis == 0:  # Rotate around X axis
+    if axis == 'x':  # Rotate around X axis
         rotation_matrix = np.array([[1, 0, 0],
                                     [0, 0, -1],
                                     [0, 1, 0]])
-    elif axis == 1:  # Rotate around Y axis
+    elif axis == 'y':  # Rotate around Y axis
         rotation_matrix = np.array([[0, 0, 1],
                                     [0, 1, 0],
                                     [-1, 0, 0]])
-    else:  # Rotate around Z axis
+    elif axis == 'z':  # Rotate around Z axis
         rotation_matrix = np.array([[0, -1, 0],
                                     [1, 0, 0],
                                     [0, 0, 1]])
+    else:
+        raise ValueError(f"{axis} is invalid axis. It should be 'x', 'y' or 'z'.")
+
+    # Reduce k to effective number rotations
+    # (e.g., 4 rotations is equivalent to 0 rotation, -5 to 3 rotations, etc.)
+    k %= 4
 
     # Apply rotation matrix to coordinates
-    rotated_coordinates = np.dot(rotation_matrix, coordinates)
+    rotated_coordinates = coordinates.copy()
+    for _ in range(k):
+        rotated_coordinates = np.dot(rotation_matrix, rotated_coordinates)
 
     return rotated_coordinates
 
