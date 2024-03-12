@@ -92,6 +92,10 @@ class RubiksCube():
             # Rotate it
             self.rotate_side(axis, row, k)
 
+    def reset(self):
+        for piece in self.pieces:
+            piece.reset()
+
 
 def rotate_pieces(pieces: list, axis:Literal['x', 'y', 'z'], k:int):
     """Rotates all given pieces k*90 degrees around the given axis.
@@ -117,5 +121,9 @@ def rotate_pieces(pieces: list, axis:Literal['x', 'y', 'z'], k:int):
 # cube.plot()
 # 
 # cube.scramble()
+# 
+# cube.plot()
+# 
+# cube.reset()
 # 
 # cube.plot()
