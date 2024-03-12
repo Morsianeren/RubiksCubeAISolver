@@ -1,7 +1,6 @@
 # %%
 import numpy as np
 import matplotlib.pyplot as plt
-from dataclasses import dataclass
 
 # Descriptor class for quaternion components
 # This dataclass simply allows us to access the individual components of the quaternion
@@ -16,10 +15,9 @@ class QuaternionComponent:
         idx = instance._components.index(self.name)
         instance.q[idx] = value
 
-@dataclass
 class Quaternion():
     # The values of the quaternion is stored in a 4-element array
-    q: np.ndarray = np.array([0., 0., 0., 0.])
+    #q: np.ndarray = np.array([0., 0., 0., 0.])
     # Each individual component is accessed through a descriptor
     _components = ['w', 'x', 'y', 'z']
     w = QuaternionComponent('w')
@@ -28,7 +26,8 @@ class Quaternion():
     z = QuaternionComponent('z')
 
     # Magic methods
-    def __post_init__(self):
+    def __init__(self, q: np.ndarray):
+        self.q = q
         if len(self.q) != 4:
             raise ValueError("Quaternion array must have length 4. Got: ", self.q)
 
