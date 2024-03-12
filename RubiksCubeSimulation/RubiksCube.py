@@ -79,14 +79,19 @@ class RubiksCube():
         pieces_to_rotate = [piece for piece in pieces if piece.position[idx] == row]
 
         # Rotate pieces
-        rotated_pieces = rotate_pieces(pieces_to_rotate, axis, k)
+        rotate_pieces(pieces_to_rotate, axis, k)
+    
+    def scramble(self, iterations = 64):
+        for _ in range(iterations):
+            # Get a random axis
+            axis = np.random.choice(['x', 'y', 'z'])
+            # Get a random row
+            row = np.random.choice([-1, 0, 1])*self.POSITION_SCALE
+            # Get a random number of rotations
+            k = np.random.choice([1, 2, 3])
+            # Rotate it
+            self.rotate_side(axis, row, k)
 
-        # Assemble the rotated pieces back the original list
-        for i, piece in enumerate(pieces):
-            if piece in pieces_to_rotate:
-                pieces[i] = rotated_pieces.pop(0)
-
-        return pieces
 
 def rotate_pieces(pieces: list, axis:Literal['x', 'y', 'z'], k:int):
     """Rotates all given pieces k*90 degrees around the given axis.
@@ -111,6 +116,6 @@ def rotate_pieces(pieces: list, axis:Literal['x', 'y', 'z'], k:int):
 # 
 # cube.plot()
 # 
-# cube.rotate_side('x', 0, 1)
+# cube.scramble()
 # 
 # cube.plot()
