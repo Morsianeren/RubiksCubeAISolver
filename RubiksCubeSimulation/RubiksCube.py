@@ -96,6 +96,11 @@ class RubiksCube():
         for piece in self.pieces:
             piece.reset()
 
+    def flatten():
+        """This function returns a flattened list with the colors of the rubiks cube
+        """
+        pass
+
 
 def rotate_pieces(pieces: list, axis:Literal['x', 'y', 'z'], k:int):
     """Rotates all given pieces k*90 degrees around the given axis.
