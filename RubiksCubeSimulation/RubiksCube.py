@@ -12,17 +12,15 @@ import numpy as np
 from typing import Literal
 
 class RubiksCube():
-    POSITION_SCALE = 4
-
     def __init__(self):
         pieces = np.zeros((3, 3, 3), dtype=Piece)
 
         # Initialize the pieces
         # The cube will have center in origo
         for x, y, z in np.ndindex(3, 3, 3):
-            pieces[x, y, z] = Piece((x-1)*self.POSITION_SCALE,
-                                    (y-1)*self.POSITION_SCALE,
-                                    (z-1)*self.POSITION_SCALE)
+            pieces[x, y, z] = Piece((x-1),
+                                    (y-1),
+                                    (z-1))
 
         # Assign colors to the pieces
         for row in pieces[0,:,:]:
@@ -53,22 +51,30 @@ class RubiksCube():
         # since rotation will mess up the indexing
         self.pieces = pieces.flatten()
 
-    def plot(self, style:Literal['square', 'arrows']='square'):
+    def plot(self, style:Literal['square', 'arrows']='square', **kwargs):
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
 
-        for piece in self.pieces:
-            piece.plot(ax, style)
+        scale = 2
+        #s = scale*2
 
-        ax.set_xlim(-8, 8)
-        ax.set_ylim(-8, 8)
-        ax.set_zlim(-8, 8)
+        # Plot lines in x y and z direction
+        #ax.plot([-s, s], [0, 0], [0, 0], color='red')
+        #ax.plot([0, 0], [-s, s], [0, 0], color='green')
+        #ax.plot([0, 0], [0, 0], [-s, s], color='blue')
+
+        for piece in self.pieces:
+           piece.plot(ax, style, **kwargs)
+
+        ax.set_xlim(-scale, scale)
+        ax.set_ylim(-scale, scale)
+        ax.set_zlim(-scale, scale)
         plt.show()
 
     def rotate_side(self, axis:Literal['x', 'y', 'z'], row:int, k:int):
-        lower_position = -self.POSITION_SCALE
+        lower_position = -1
         middle_position = 0
-        upper_position = self.POSITION_SCALE
+        upper_position = 1
 
         pieces = self.pieces
 
@@ -86,7 +92,7 @@ class RubiksCube():
             # Get a random axis
             axis = np.random.choice(['x', 'y', 'z'])
             # Get a random row
-            row = np.random.choice([-1, 0, 1])*self.POSITION_SCALE
+            row = np.random.choice([-1, 0, 1])
             # Get a random number of rotations
             k = np.random.choice([1, 2, 3])
             # Rotate it
@@ -96,10 +102,28 @@ class RubiksCube():
         for piece in self.pieces:
             piece.reset()
 
-    def flatten():
+    def flatten(self):
         """This function returns a flattened list with the colors of the rubiks cube
+        The order is front, right, back, left, up, down
+        0 1 2
+        3 4 5
+        6 7 8
         """
-        pass
+        # Initialize a list to store all the colors
+        face_list = np.zeros(9*6)
+
+        # Iterate over all pieces
+        for piece in self.pieces:
+            # Get the position of the piece
+            position = piece.position
+            # Get the colors of the piece
+            colors = piece.colors
+            # Get the index of the piece
+            idx = np.ravel_multi_index(position+1, (3,3,3))
+            # Add the colors to the list
+            face_list[idx*6:idx*6+6] = list(colors.values())
+
+        return face_list
 
 
 def rotate_pieces(pieces: list, axis:Literal['x', 'y', 'z'], k:int):
@@ -121,14 +145,16 @@ def rotate_pieces(pieces: list, axis:Literal['x', 'y', 'z'], k:int):
     return pieces_copy
 
 # %% Test code
-# cube = RubiksCube()
-# 
-# cube.plot()
-# 
-# cube.scramble()
-# 
-# cube.plot()
-# 
-# cube.reset()
-# 
-# cube.plot()
+cube = RubiksCube()
+
+#cube.plot()
+
+cube.scramble()
+
+cube.plot()
+
+#cube.reset()
+
+#cube.plot()
+
+#face_list = cube.flatten()

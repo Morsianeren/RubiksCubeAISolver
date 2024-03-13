@@ -60,7 +60,7 @@ class Piece():
                 if color is None:
                     continue
                 iterations += 1
-                center = self.position + vector
+                center = self.position - vector * 0.5
                 vertices = get_translated_vertices(vector, center)
                 ax.add_collection3d(Poly3DCollection([vertices], facecolors=color, edgecolors="black", **kwargs))
         elif style == 'arrows':
@@ -115,7 +115,7 @@ def get_vertices(direction_vector):
         np.array([list]): An array with 4 lists, 
         each list containing the x, y, z coordinates of a vertex
     """
-    side_length = 4
+    side_length = 1
     # First create a surface with respect to the face vector.
     # This will give us a square with the correct orientation
     # Later we will transpose the surface to the correct position
