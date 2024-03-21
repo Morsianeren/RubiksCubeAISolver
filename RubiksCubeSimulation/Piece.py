@@ -95,20 +95,19 @@ class Piece():
 
         ax = plt.gca() # Get current axis
 
-        if exploded == True:
-            scale = 5
-            if np.any(x_vector < 0):
-                x_vector *= scale
-            if np.any(y_vector > 0):
-                y_vector *= scale
-            if np.any(z_vector < 0):
-                z_vector *= scale
-
         for vector, color in zip(vectors, colors):
             if color is None:
                 continue
             iterations += 1
-            center = self.position - vector * 0.5
+            center = None
+            if exploded is True:
+                scale = 4
+                if vector[0] < 0 or vector[2] < 0: # Negative x and z direction
+                    center = self.position + vector * scale
+                elif vector[1] > 0: # Positive y direction
+                    center = self.position + vector * scale
+            if center is None:
+                center = self.position - vector * 0.5
             if style == 'square':
                 vertices = get_translated_vertices(vector, center)
                 ax.add_collection3d(Poly3DCollection([vertices], facecolors=color, edgecolors="black", **kwargs))
