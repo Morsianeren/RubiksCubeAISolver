@@ -13,7 +13,6 @@ from Piece import Piece
 import matplotlib.pyplot as plt
 import numpy as np
 from typing import Literal
-from Quaternions.Quaternion import Quaternion
 
 class RubiksCube():
     def __init__(self):
@@ -129,31 +128,6 @@ class RubiksCube():
 
         return face_list
 
-def direction_vectors_to_quaternion(x_vector, y_vector, z_vector):
-    """
-    Convert three direction vectors (unit vectors) to a quaternion representing the rotation.
-    
-    Args:
-    x_vector, y_vector, z_vector: numpy arrays representing the unit vectors along x, y, and z directions.
-    
-    Returns:
-    Quaternion representing the rotation.
-    """
-    # Create a rotation matrix from the direction vectors
-    rotation_matrix = np.column_stack((x_vector, y_vector, z_vector))
-    
-    # Calculate the quaternion from the rotation matrix
-    tot = rotation_matrix[0, 0] + rotation_matrix[1, 1] + rotation_matrix[2, 2]
-    w = np.sqrt(abs(1.0 + tot)) / 2.0
-    if w == np.nan:
-        return Quaternion(np.array([1, 0, 0, 0]))
-    w4 = (4.0 * w)
-    x = (rotation_matrix[2, 1] - rotation_matrix[1, 2]) / w4
-    y = (rotation_matrix[0, 2] - rotation_matrix[2, 0]) / w4
-    z = (rotation_matrix[1, 0] - rotation_matrix[0, 1]) / w4
-    
-    return Quaternion(np.array([w, x, y, z]))
-
 def rotate_pieces(pieces: list, axis:Literal['x', 'y', 'z'], k:int):
     """Rotates all given pieces k*90 degrees around the given axis.
 
@@ -175,11 +149,11 @@ def rotate_pieces(pieces: list, axis:Literal['x', 'y', 'z'], k:int):
 # %% Test code
 cube = RubiksCube()
 
-#cube.plot()
+cube.plot()
 
-#cube.scramble()
+cube.scramble(2)
 
-cube.plot('square', exploded=True)
+cube.plot()
 
 #cube.reset()
 
