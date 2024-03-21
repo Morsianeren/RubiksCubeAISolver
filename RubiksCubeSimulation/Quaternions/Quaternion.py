@@ -30,6 +30,9 @@ class Quaternion():
         self.q = q
         if len(self.q) != 4:
             raise ValueError("Quaternion array must have length 4. Got: ", self.q)
+        # Check for nan values
+        if np.isnan(self.q).any():
+            raise ValueError("Quaternion array cannot contain nan values.")
 
     def __str__(self):
         return f"Quaternion({self.w} + {self.x}i + {self.y}j + {self.z}k)"
