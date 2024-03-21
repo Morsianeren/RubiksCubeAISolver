@@ -8,6 +8,15 @@ try:
 except ModuleNotFoundError:
     from Quaternion import Quaternion
 
+DIRECTION_COLOR_LOOKUP = {
+    (1, 0, 0): 'white',     # Front
+    (0, 1, 0): 'orange',    # Right
+    (0, 0, 1): 'blue',      # Top
+    (-1, 0, 0): 'yellow',   # Back
+    (0, -1, 0): 'red',      # Right
+    (0, 0, -1): 'green'     # Bottom
+}
+
 class Piece():
     """This class represents a piece of the Rubik's Cube. 
     It has a position and orientation."""
@@ -21,11 +30,39 @@ class Piece():
         self._INITIAL_POSITION = np.array([x_pos, y_pos, z_pos], dtype=int)
 
         # The colors of the piece
-        self.colors = {'x': None, 'y': None, 'z': None,
-                       '-x': None, '-y': None, '-z': None}
+        self.colors = {'x': None, 'y': None, 'z': None}
 
-    def rotate(self, axis: Literal['x', 'y', 'z'], k: int) -> None:
+    def reset_initial_state(self):
+        self._INITIAL_ORIENTATION = self.orientation
+        self._INITIAL_POSITION = self.position
+        self.reset_color()
+
+    def reset_color(self):
+        for i, c in enumerate(self.position):
+            x_vector, y_vector, z_vector = self.orientation.get_xyz_vectors()
+
+            self.colors['x'] = DIRECTION_COLOR_LOOKUP[tuple(x_vector)]
+            self.colors['y'] = DIRECTION_COLOR_LOOKUP[tuple(y_vector)]
+            self.colors['z'] = DIRECTION_COLOR_LOOKUP[tuple(z_vector)]
+
+
+            #if abs(c) == 1:
+            #    idx = 'xyz'[i]
+            #    direction = [0, 0, 0]
+            #    direction[i] = c
+            #    direction = tuple(direction)
+            #    color = DIRECTION_COLOR_LOOKUP[direction]
+            #    self.colors[idx] = color
+
+    def rotate(self, axis: Literal['x', 'y', 'z'], k: int, rotate_position=True) -> None:
         """Rotate the piece k*90 degrees around the given axis."""
+
+        # Reduce k to effective number rotations
+        # (e.g., 4 rotations is equivalent to 0 rotation, -5 to 3 rotations, etc.)
+        k %= 4
+        if k == 0:
+            return
+
         cos_part = np.cos(k * np.pi / 4)
         sin_part = np.sin(k * np.pi / 4)
         if axis == 'x':
@@ -40,37 +77,44 @@ class Piece():
         else:
             raise ValueError("Invalid axis. It should be 'x', 'y' or 'z'.")
         self.orientation = rotation_quaternion * self.orientation
-        self.position = rotate_coordinates_90_degrees(self.position, axis, k)
+        if rotate_position:
+            self.position = rotate_coordinates_90_degrees(self.position, axis, k)
         
     def reset(self) -> None:
         """Reset the piece to its initial position and orientation."""
         self.orientation = self._INITIAL_ORIENTATION
         self.position = self._INITIAL_POSITION
 
-    def plot(self, ax, style:Literal['square', 'arrows'] = 'square', **kwargs) -> None:
+    def plot(self, style:Literal['square', 'arrows'] = 'square', exploded=True, **kwargs) -> None:
         """Plot the piece in 3D space."""
         x_vector, y_vector, z_vector = self.orientation.get_xyz_vectors()
-        vectors = [x_vector, y_vector, z_vector, -x_vector, -y_vector, -z_vector]
+        vectors = [x_vector, y_vector, z_vector]
         colors = self.colors.values()
 
         iterations = 0
 
-        if style == 'square':
-            for vector, color in zip(vectors, colors):
-                if color is None:
-                    continue
-                iterations += 1
-                center = self.position - vector * 0.5
+        ax = plt.gca() # Get current axis
+
+        if exploded == True:
+            scale = 5
+            if np.any(x_vector < 0):
+                x_vector *= scale
+            if np.any(y_vector > 0):
+                y_vector *= scale
+            if np.any(z_vector < 0):
+                z_vector *= scale
+
+        for vector, color in zip(vectors, colors):
+            if color is None:
+                continue
+            iterations += 1
+            center = self.position - vector * 0.5
+            if style == 'square':
                 vertices = get_translated_vertices(vector, center)
                 ax.add_collection3d(Poly3DCollection([vertices], facecolors=color, edgecolors="black", **kwargs))
-        elif style == 'arrows':
-            for vector, color in zip(vectors, colors):
-                if color is None:
-                    continue    
-                iterations += 1
-                center = self.position + vector
+            elif style == 'arrows':
                 ax.quiver(center[0], center[1], center[2], vector[0], vector[1], vector[2], color=color, **kwargs)
-
+                
         if iterations == 0:
             print(f"Warning: No colors were set for piece {self.position} and therefore it will not be plotted.")
 
@@ -220,3 +264,16 @@ def rotate_coordinates_90_degrees(coordinates, axis:Literal['x', 'y', 'z'], k:in
 #ax.set_ylim(-10, 10)
 #ax.set_zlim(-10, 10)
 #plt.show()
+
+""" piece = Piece(-1, -1, -1)
+piece.rotate('x', 2)
+piece.rotate('z', 0)
+piece.reset_initial_state()
+
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+piece.plot(style='square', exploded=True)
+
+ax.set_xlim(-5, 5)
+ax.set_ylim(-5, 5)
+ax.set_zlim(-5, 5) """
