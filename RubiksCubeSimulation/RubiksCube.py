@@ -5,6 +5,69 @@
 # have been an unmixed evil to those who have touched them in any way, including Clerk Maxwell"
 # - Lord Kelvin
 
+# The order is front, back, right, left, up, down
+
+POINT_TO_INDEX = {
+    ( 1, -1,  1):   (0, 0), # Front
+    ( 1,  0,  1):   (0, 1),
+    ( 1,  1,  1):   (0, 2),
+    ( 1, -1,  0):   (0, 3),
+    ( 1,  0,  0):   (0, 4),
+    ( 1,  1,  0):   (0, 5),
+    ( 1, -1, -1):   (0, 6),
+    ( 1,  0, -1):   (0, 7),
+    ( 1,  1, -1):   (0, 8),
+
+    (-1,  1,  1):   (1, 0), # Back
+    (-1,  0,  1):   (1, 1),
+    (-1, -1,  1):   (1, 2),
+    (-1,  1,  0):   (1, 3),
+    (-1,  0,  0):   (1, 4),
+    (-1, -1,  0):   (1, 5),
+    (-1,  1, -1):   (1, 6),
+    (-1,  0, -1):   (1, 7),
+    (-1, -1, -1):   (1, 8),
+
+    ( 1,  1,  1):   (2, 0), # Right
+    ( 0,  1,  1):   (2, 1),
+    (-1,  1,  1):   (2, 2),
+    ( 1,  1,  0):   (2, 3),
+    ( 0,  1,  0):   (2, 4),
+    (-1,  1,  0):   (2, 5),
+    ( 1,  1, -1):   (2, 6),
+    ( 0,  1, -1):   (2, 7),
+    (-1,  1, -1):   (2, 8),
+
+    (-1, -1,  1):   (3, 0), # Left
+    ( 0, -1,  1):   (3, 1),
+    ( 1, -1,  1):   (3, 2),
+    (-1, -1,  0):   (3, 3),
+    ( 0, -1,  0):   (3, 4),
+    ( 1, -1,  0):   (3, 5),
+    (-1, -1, -1):   (3, 6),
+    ( 0, -1, -1):   (3, 7),
+    ( 1, -1, -1):   (3, 8),
+
+    (-1, -1,  1):   (4, 0), # Up
+    (-1,  0,  1):   (4, 1),
+    (-1,  1,  1):   (4, 2),
+    ( 0, -1,  1):   (4, 3),
+    ( 0,  0,  1):   (4, 4),
+    ( 0,  1,  1):   (4, 5),
+    ( 1, -1,  1):   (4, 6),
+    ( 1,  0,  1):   (4, 7),
+    ( 1,  1,  1):   (4, 8),
+
+    ( 1, -1, -1):   (5, 0), # Down
+    ( 1,  0, -1):   (5, 1),
+    ( 1,  1, -1):   (5, 2),
+    ( 0, -1, -1):   (5, 3),
+    ( 0,  0, -1):   (5, 4),
+    ( 0,  1, -1):   (5, 5),
+    (-1, -1, -1):   (5, 6),
+    (-1,  0, -1):   (5, 7),
+    (-1,  1, -1):   (5, 8),
+}
 # %% 
 # Automatically reload changed modules
 #%load_ext autoreload 
@@ -20,44 +83,154 @@ class RubiksCube():
         self.pieces = set()
 
         # Intialize the pieces and orientation
-        for x in (-1, 0, 1):
-            for y in (-1, 0, 1):
-                for z in (-1, 0, 1):
-                #for z in [-1]:
-                    if z == -1:
-                        piece = Piece(x, y, 1)
-                    else:
-                        piece = Piece(x, y, z)
-                    k = 0
-                    if y == x == -1:
-                        k = 2
-                    elif y == -1:
-                        k = -1
-                    elif x == -1:
-                        k = 1
-                    piece.rotate('z', k, rotate_position=False)
-                    if z == -1:
-                        piece.rotate('x', 2, rotate_position=True)
-                    self.pieces.add(piece)
+        # Rules: 
+        # For center pieces the x direction must have a color
+        # Next, for egde pieces, the y direction must have a color
+        # Last for corner pieces, the z direction must have a color
 
-        for piece in self.pieces:
-            piece.reset_initial_state()
-            
-            # Remove colors inside the cube
-            pos = piece.position
-            x = pos[0]
-            y = pos[1]
-            z = pos[2]
-            x_vector, y_vector, z_vector = piece.orientation.get_xyz_vectors()
+        x = 1
+        piece = Piece(x, -1,1) # Front 0
+        piece.rotate('x', 1, rotate_position=False)
+        piece.colors['x'] = 'white'
+        piece.colors['y'] = 'blue'
+        piece.colors['z'] = 'red'
+        self.pieces.add(piece)
+        piece = Piece(x, 0, 1) # Front 1
+        piece.rotate('x', 1, rotate_position=False)
+        piece.colors['x'] = 'white'
+        piece.colors['y'] = 'blue'
+        self.pieces.add(piece)
+        piece = Piece(x, 1, 1) # Front 2
+        piece.colors['x'] = 'white'
+        piece.colors['y'] = 'orange'
+        piece.colors['z'] = 'blue'
+        self.pieces.add(piece)
+        piece = Piece(x, -1, 0) # Front 3
+        piece.rotate('x', 2, rotate_position=False)
+        piece.colors['x'] = 'white'
+        piece.colors['y'] = 'red'
+        self.pieces.add(piece)
+        piece = Piece(x, 0, 0) # Front 4
+        piece.colors['x'] = 'white'
+        self.pieces.add(piece)
+        piece = Piece(x, 1, 0) # Front 5
+        piece.colors['x'] = 'white'
+        piece.colors['y'] = 'orange'
+        self.pieces.add(piece)
+        piece = Piece(x, -1, -1) # Front 6
+        piece.rotate('x', 2, rotate_position=False)
+        piece.colors['x'] = 'white'
+        piece.colors['y'] = 'red'
+        piece.colors['z'] = 'green'
+        self.pieces.add(piece)
+        piece = Piece(x, 0, -1) # Front 7
+        piece.rotate('x', -1, rotate_position=False)
+        piece.colors['x'] = 'white'
+        piece.colors['y'] = 'green'
+        self.pieces.add(piece)
+        piece = Piece(x, 1, -1) # Front 8
+        piece.rotate('x', -1, rotate_position=False)
+        piece.colors['x'] = 'white'
+        piece.colors['y'] = 'green'
+        piece.colors['z'] = 'orange'
+        self.pieces.add(piece)
 
-            mask = [x, y, z]
+        x = 0
+        piece = Piece(x, -1, 1) # Middle 0
+        piece.rotate('z', -1, rotate_position=False)
+        piece.rotate('y', -1, rotate_position=False)
+        piece.colors['x'] = 'red'
+        piece.colors['y'] = 'blue'
+        self.pieces.add(piece)
+        piece = Piece(x, 0, 1) # Middle 1
+        piece.rotate('y', -1, rotate_position=False)
+        piece.colors['x'] = 'blue'
+        self.pieces.add(piece)
+        piece = Piece(x, 1, 1) # Middle 2
+        piece.rotate('y', -1, rotate_position=False)
+        piece.colors['x'] = 'blue'
+        piece.colors['y'] = 'orange'
+        self.pieces.add(piece)
+        piece = Piece(x, -1, 0) # Middle 3
+        piece.rotate('z', -1, rotate_position=False)
+        piece.colors['x'] = 'red'
+        self.pieces.add(piece)
+        piece = Piece(x, 0, 0) # Middle 4
+        self.pieces.add(piece)
+        piece = Piece(x, 1, 0) # Middle 5
+        piece.rotate('z', 1, rotate_position=False)
+        piece.colors['x'] = 'orange'
+        self.pieces.add(piece)
+        piece = Piece(x, -1, -1) # Middle 6
+        piece.rotate('z', -1, rotate_position=False)
+        piece.rotate('y', 1, rotate_position=False)
+        piece.colors['x'] = 'red'
+        piece.colors['y'] = 'green'
+        self.pieces.add(piece)
+        piece = Piece(x, 0, -1) # Middle 7
+        piece.rotate('y', 1, rotate_position=False)
+        piece.colors['x'] = 'green'
+        self.pieces.add(piece)
+        piece = Piece(x, 1, -1) # Middle 8
+        piece.rotate('y', 1, rotate_position=False)
+        piece.colors['x'] = 'green'
+        piece.colors['y'] = 'orange'
+        self.pieces.add(piece)
 
-            for i, vector in enumerate([x_vector, y_vector, z_vector]):
-                result = any([a == b and abs(a) == 1 for a, b in zip(vector, mask)])
-                
-                if not result:
-                    idx = 'xyz'[i]
-                    piece.colors[idx] = None
+        x = -1
+        piece = Piece(x, -1, 1) # Back 0
+        piece.rotate('z', 2, rotate_position=False)
+        piece.colors['x'] = 'yellow'
+        piece.colors['y'] = 'red'
+        piece.colors['z'] = 'blue'
+        self.pieces.add(piece)
+        piece = Piece(x, 0, 1) # Back 1
+        piece.rotate('z', 2, rotate_position=False)
+        piece.rotate('x', -1, rotate_position=False)
+        piece.colors['x'] = 'yellow'
+        piece.colors['y'] = 'blue'
+        self.pieces.add(piece)
+        piece = Piece(x, 1, 1) # Back 2
+        piece.rotate('z', 2, rotate_position=False)
+        piece.rotate('x', -1, rotate_position=False)
+        piece.colors['x'] = 'yellow'
+        piece.colors['y'] = 'blue'
+        piece.colors['z'] = 'orange'
+        self.pieces.add(piece)
+        piece = Piece(x, -1, 0) # Back 3
+        piece.rotate('z', 2, rotate_position=False)
+        piece.colors['x'] = 'yellow'
+        piece.colors['y'] = 'red'
+        self.pieces.add(piece)
+        piece = Piece(x, 0, 0) # Back 4
+        piece.rotate('z', 2, rotate_position=False)
+        piece.colors['x'] = 'yellow'
+        self.pieces.add(piece)
+        piece = Piece(x, 1, 0) # Back 5
+        piece.rotate('z', 1, rotate_position=False)
+        piece.colors['x'] = 'orange'
+        piece.colors['y'] = 'yellow'
+        self.pieces.add(piece)
+        piece = Piece(x, -1, -1) # Back 6
+        piece.rotate('z', 2, rotate_position=False)
+        piece.rotate('x', 1, rotate_position=False)
+        piece.colors['x'] = 'yellow'
+        piece.colors['y'] = 'green'
+        piece.colors['z'] = 'red'
+        self.pieces.add(piece)
+        piece = Piece(x, 0, -1) # Back 7
+        piece.rotate('z', 1, rotate_position=False)
+        piece.rotate('x', -1, rotate_position=False)
+        piece.colors['x'] = 'green'
+        piece.colors['y'] = 'yellow'
+        self.pieces.add(piece)
+        piece = Piece(x, 1, -1) # Back 8
+        piece.rotate('z', 1, rotate_position=False)
+        piece.rotate('x', -1, rotate_position=False)
+        piece.colors['x'] = 'green'
+        piece.colors['y'] = 'yellow'
+        piece.colors['z'] = 'orange'
+        self.pieces.add(piece)
 
     def plot(self, style:Literal['square', 'arrows']='square', **kwargs):
         fig = plt.figure()
@@ -112,21 +285,40 @@ class RubiksCube():
         3 4 5
         6 7 8
         """
-        # Initialize a list to store all the colors
-        face_list = np.zeros(9*6)
+
+        cube_color_matrix = np.zeros((18,3))
+
 
         # Iterate over all pieces
         for piece in self.pieces:
             # Get the position of the piece
             position = piece.position
             # Get the colors of the piece
-            colors = piece.colors
+            colors = list(piece.colors.values())
             
-            # If piece is front
-            if position[2] == -1:
-                face_list[0] = 0 # TODO
+            x_vector, y_vector, z_vector = piece.orientation.get_xyz_vectors()
 
-        return face_list
+            p1 = tuple(position + x_vector)
+            p2 = tuple(position + y_vector)
+            p3 = tuple(position + z_vector)
+
+            for i, point in enumerate([p1, p2, p3]):
+                try:
+                    idx = POINT_TO_INDEX[point]
+                except KeyError:
+                    # No more valid colors
+                    continue
+
+                color = colors[i]
+
+                if color is None:
+                    raise TypeError("Color is None, this is a fault in the code!")
+
+                cube_color_matrix[idx] = color
+
+                    
+
+        return cube_color_matrix.flatten()
 
 def rotate_pieces(pieces: list, axis:Literal['x', 'y', 'z'], k:int):
     """Rotates all given pieces k*90 degrees around the given axis.
@@ -149,7 +341,7 @@ def rotate_pieces(pieces: list, axis:Literal['x', 'y', 'z'], k:int):
 # %% Test code
 cube = RubiksCube()
 
-cube.plot()
+cube.plot(exploded=True)
 
 cube.scramble(2)
 
