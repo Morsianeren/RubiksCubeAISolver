@@ -3,10 +3,7 @@ from typing import Literal
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
-try:
-    from Quaternions.Quaternion import Quaternion
-except ModuleNotFoundError:
-    from Quaternion import Quaternion
+from Quaternion.Quaternion import Quaternion
 
 DIRECTION_COLOR_LOOKUP = {
     (1, 0, 0): 'white',     # Front
@@ -36,7 +33,6 @@ class Piece():
     def reset_initial_state(self):
         self._INITIAL_ORIENTATION = self.orientation
         self._INITIAL_POSITION = self.position
-        self.reset_color()
 
     def reset_color(self):
         for i, c in enumerate(self.position):
