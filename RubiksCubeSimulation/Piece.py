@@ -20,12 +20,13 @@ DIRECTION_COLOR_LOOKUP = {
 class Piece():
     """This class represents a piece of the Rubik's Cube. 
     It has a position and orientation."""
-    def __init__(self, x_pos:int, y_pos:int, z_pos:int) -> None:
+    def __init__(self, x_pos:int, y_pos:int, z_pos:int, \
+                 w:float=1, i:float=0, j:float=0, k:float=0) -> None:
         # The 
         self.orientation = Quaternion([1, 0, 0, 0])
         self.position = np.array([x_pos, y_pos, z_pos], dtype=int)
         # Used to make sure the piece is in the correct orientation
-        self._INITIAL_ORIENTATION = Quaternion([1, 0, 0, 0]) 
+        self._INITIAL_ORIENTATION = Quaternion([w, i, j, k]) 
         # Used to make sure the piece is in the correct position
         self._INITIAL_POSITION = np.array([x_pos, y_pos, z_pos], dtype=int)
 
