@@ -5,68 +5,76 @@
 # have been an unmixed evil to those who have touched them in any way, including Clerk Maxwell"
 # - Lord Kelvin
 
-# The order is front, back, right, left, up, down
+# The order is front (white), back (yellow), right (orange), 
+# left (red), up (blue), down (green)
+# Looking at the front of the cube (white with blue top)
+# the numbering of the colors will be the following:
+# 0 1 2
+# 3 4 5
+# 6 7 8
+# Note that looking at the blue face the top will be yellow
+# and looking at the bottom face the top will be white 
 
 POINT_TO_INDEX = {
-    ( 1, -1,  1):   (0, 0), # Front
-    ( 1,  0,  1):   (0, 1),
-    ( 1,  1,  1):   (0, 2),
-    ( 1, -1,  0):   (0, 3),
-    ( 1,  0,  0):   (0, 4),
-    ( 1,  1,  0):   (0, 5),
-    ( 1, -1, -1):   (0, 6),
-    ( 1,  0, -1):   (0, 7),
-    ( 1,  1, -1):   (0, 8),
+    ( 2, -1,  1):   (0, 0), # Front
+    ( 2,  0,  1):   (0, 1),
+    ( 2,  1,  1):   (0, 2),
+    ( 2, -1,  0):   (0, 3),
+    ( 2,  0,  0):   (0, 4),
+    ( 2,  1,  0):   (0, 5),
+    ( 2, -1, -1):   (0, 6),
+    ( 2,  0, -1):   (0, 7),
+    ( 2,  1, -1):   (0, 8),
 
-    (-1,  1,  1):   (1, 0), # Back
-    (-1,  0,  1):   (1, 1),
-    (-1, -1,  1):   (1, 2),
-    (-1,  1,  0):   (1, 3),
-    (-1,  0,  0):   (1, 4),
-    (-1, -1,  0):   (1, 5),
-    (-1,  1, -1):   (1, 6),
-    (-1,  0, -1):   (1, 7),
-    (-1, -1, -1):   (1, 8),
+    (-2,  1,  1):   (1, 0), # Back
+    (-2,  0,  1):   (1, 1),
+    (-2, -1,  1):   (1, 2),
+    (-2,  1,  0):   (1, 3),
+    (-2,  0,  0):   (1, 4),
+    (-2, -1,  0):   (1, 5),
+    (-2,  1, -1):   (1, 6),
+    (-2,  0, -1):   (1, 7),
+    (-2, -1, -1):   (1, 8),
 
-    ( 1,  1,  1):   (2, 0), # Right
-    ( 0,  1,  1):   (2, 1),
-    (-1,  1,  1):   (2, 2),
-    ( 1,  1,  0):   (2, 3),
-    ( 0,  1,  0):   (2, 4),
-    (-1,  1,  0):   (2, 5),
-    ( 1,  1, -1):   (2, 6),
-    ( 0,  1, -1):   (2, 7),
-    (-1,  1, -1):   (2, 8),
+    ( 1,  2,  1):   (2, 0), # Right
+    ( 0,  2,  1):   (2, 1),
+    (-1,  2,  1):   (2, 2),
+    ( 1,  2,  0):   (2, 3),
+    ( 0,  2,  0):   (2, 4),
+    (-1,  2,  0):   (2, 5),
+    ( 1,  2, -1):   (2, 6),
+    ( 0,  2, -1):   (2, 7),
+    (-1,  2, -1):   (2, 8),
 
-    (-1, -1,  1):   (3, 0), # Left
-    ( 0, -1,  1):   (3, 1),
-    ( 1, -1,  1):   (3, 2),
-    (-1, -1,  0):   (3, 3),
-    ( 0, -1,  0):   (3, 4),
-    ( 1, -1,  0):   (3, 5),
-    (-1, -1, -1):   (3, 6),
-    ( 0, -1, -1):   (3, 7),
-    ( 1, -1, -1):   (3, 8),
+    (-1, -2,  1):   (3, 0), # Left
+    ( 0, -2,  1):   (3, 1),
+    ( 1, -2,  1):   (3, 2),
+    (-1, -2,  0):   (3, 3),
+    ( 0, -2,  0):   (3, 4),
+    ( 1, -2,  0):   (3, 5),
+    (-1, -2, -1):   (3, 6),
+    ( 0, -2, -1):   (3, 7),
+    ( 1, -2, -1):   (3, 8),
 
-    (-1, -1,  1):   (4, 0), # Up
-    (-1,  0,  1):   (4, 1),
-    (-1,  1,  1):   (4, 2),
-    ( 0, -1,  1):   (4, 3),
-    ( 0,  0,  1):   (4, 4),
-    ( 0,  1,  1):   (4, 5),
-    ( 1, -1,  1):   (4, 6),
-    ( 1,  0,  1):   (4, 7),
-    ( 1,  1,  1):   (4, 8),
+    (-1, -1,  2):   (4, 0), # Up
+    (-1,  0,  2):   (4, 1),
+    (-1,  1,  2):   (4, 2),
+    ( 0, -1,  2):   (4, 3),
+    ( 0,  0,  2):   (4, 4),
+    ( 0,  1,  2):   (4, 5),
+    ( 1, -1,  2):   (4, 6),
+    ( 1,  0,  2):   (4, 7),
+    ( 1,  1,  2):   (4, 8),
 
-    ( 1, -1, -1):   (5, 0), # Down
-    ( 1,  0, -1):   (5, 1),
-    ( 1,  1, -1):   (5, 2),
-    ( 0, -1, -1):   (5, 3),
-    ( 0,  0, -1):   (5, 4),
-    ( 0,  1, -1):   (5, 5),
-    (-1, -1, -1):   (5, 6),
-    (-1,  0, -1):   (5, 7),
-    (-1,  1, -1):   (5, 8),
+    ( 1, -1, -2):   (5, 0), # Down
+    ( 1,  0, -2):   (5, 1),
+    ( 1,  1, -2):   (5, 2),
+    ( 0, -1, -2):   (5, 3),
+    ( 0,  0, -2):   (5, 4),
+    ( 0,  1, -2):   (5, 5),
+    (-1, -1, -2):   (5, 6),
+    (-1,  0, -2):   (5, 7),
+    (-1,  1, -2):   (5, 8),
 }
 # %% 
 # Automatically reload changed modules
@@ -128,47 +136,29 @@ class RubiksCube():
         for piece in self.pieces:
             piece.reset()
 
-    def flatten(self):
+    def array(self):
         """This function returns a flattened list with the colors of the rubiks cube
-        The order is front, right, back, left, up, down
-        0 1 2
-        3 4 5
-        6 7 8
+        The order is depicted by the POINT_TO_INDEX lookup
         """
 
-        cube_color_matrix = np.zeros((18,3))
-
+        cube_color_matrix = np.empty((6,9), dtype='U')
 
         # Iterate over all pieces
         for piece in self.pieces:
-            # Get the position of the piece
             position = piece.position
-            # Get the colors of the piece
-            colors = list(piece.colors.values())
-            
-            x_vector, y_vector, z_vector = piece.orientation.get_xyz_vectors()
-
-            p1 = tuple(position + x_vector)
-            p2 = tuple(position + y_vector)
-            p3 = tuple(position + z_vector)
-
-            for i, point in enumerate([p1, p2, p3]):
-                try:
-                    idx = POINT_TO_INDEX[point]
-                except KeyError:
-                    # No more valid colors
+            v_x, v_y, v_z = piece.orientation.get_xyz_vectors()
+            vectors = [v_x, v_y, v_z]
+            colors = piece.colors.values()
+            for color, vector in zip(colors, vectors):
+                point = position + vector
+                point = tuple(point)
+                if point not in POINT_TO_INDEX.keys():
+                    #print(f"Position {position} + vector {vector} not found in POINT_TO_INDEX")
                     continue
+                index = POINT_TO_INDEX[point]
+                cube_color_matrix[index] = color
 
-                color = colors[i]
-
-                if color is None:
-                    raise TypeError("Color is None, this is a fault in the code!")
-
-                cube_color_matrix[idx] = color
-
-                    
-
-        return cube_color_matrix.flatten()
+        return cube_color_matrix
 
 def rotate_pieces(pieces: list, axis:Literal['x', 'y', 'z'], k:int):
     """Rotates all given pieces k*90 degrees around the given axis.
@@ -189,16 +179,15 @@ def rotate_pieces(pieces: list, axis:Literal['x', 'y', 'z'], k:int):
     return pieces_copy
 
 # %% Test code
-cube = RubiksCube()
+#cube = RubiksCube()
 
-cube.plot(exploded=True)
+#cube.plot(exploded=True)
+#array_view = cube.array()
 
-cube.scramble(2)
+#cube.scramble(2)
 
-cube.plot()
+#cube.plot()
 
 #cube.reset()
 
 #cube.plot()
-
-#face_list = cube.flatten()
