@@ -108,10 +108,10 @@ def rotate_pieces(pieces: list, axis:Literal['x', 'y', 'z'], k:int):
     return pieces_copy
 
 # %% Test code
-cube = RubiksCube()
+#cube = RubiksCube()
 
-cube.plot(exploded=True)
-array_view = cube.array()
+#cube.plot(exploded=True)
+#array_view = cube.array()
 
 #cube.scramble(2)
 
