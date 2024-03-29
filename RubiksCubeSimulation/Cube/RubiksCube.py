@@ -5,83 +5,12 @@
 # have been an unmixed evil to those who have touched them in any way, including Clerk Maxwell"
 # - Lord Kelvin
 
-# The order is front (white), back (yellow), right (orange), 
-# left (red), up (blue), down (green)
-# Looking at the front of the cube (white with blue top)
-# the numbering of the colors will be the following:
-# 0 1 2
-# 3 4 5
-# 6 7 8
-# Note that looking at the blue face the top will be yellow
-# and looking at the bottom face the top will be white 
-
-POINT_TO_INDEX = {
-    ( 2, -1,  1):   (0, 0), # Front
-    ( 2,  0,  1):   (0, 1),
-    ( 2,  1,  1):   (0, 2),
-    ( 2, -1,  0):   (0, 3),
-    ( 2,  0,  0):   (0, 4),
-    ( 2,  1,  0):   (0, 5),
-    ( 2, -1, -1):   (0, 6),
-    ( 2,  0, -1):   (0, 7),
-    ( 2,  1, -1):   (0, 8),
-
-    (-2,  1,  1):   (1, 0), # Back
-    (-2,  0,  1):   (1, 1),
-    (-2, -1,  1):   (1, 2),
-    (-2,  1,  0):   (1, 3),
-    (-2,  0,  0):   (1, 4),
-    (-2, -1,  0):   (1, 5),
-    (-2,  1, -1):   (1, 6),
-    (-2,  0, -1):   (1, 7),
-    (-2, -1, -1):   (1, 8),
-
-    ( 1,  2,  1):   (2, 0), # Right
-    ( 0,  2,  1):   (2, 1),
-    (-1,  2,  1):   (2, 2),
-    ( 1,  2,  0):   (2, 3),
-    ( 0,  2,  0):   (2, 4),
-    (-1,  2,  0):   (2, 5),
-    ( 1,  2, -1):   (2, 6),
-    ( 0,  2, -1):   (2, 7),
-    (-1,  2, -1):   (2, 8),
-
-    (-1, -2,  1):   (3, 0), # Left
-    ( 0, -2,  1):   (3, 1),
-    ( 1, -2,  1):   (3, 2),
-    (-1, -2,  0):   (3, 3),
-    ( 0, -2,  0):   (3, 4),
-    ( 1, -2,  0):   (3, 5),
-    (-1, -2, -1):   (3, 6),
-    ( 0, -2, -1):   (3, 7),
-    ( 1, -2, -1):   (3, 8),
-
-    (-1, -1,  2):   (4, 0), # Up
-    (-1,  0,  2):   (4, 1),
-    (-1,  1,  2):   (4, 2),
-    ( 0, -1,  2):   (4, 3),
-    ( 0,  0,  2):   (4, 4),
-    ( 0,  1,  2):   (4, 5),
-    ( 1, -1,  2):   (4, 6),
-    ( 1,  0,  2):   (4, 7),
-    ( 1,  1,  2):   (4, 8),
-
-    ( 1, -1, -2):   (5, 0), # Down
-    ( 1,  0, -2):   (5, 1),
-    ( 1,  1, -2):   (5, 2),
-    ( 0, -1, -2):   (5, 3),
-    ( 0,  0, -2):   (5, 4),
-    ( 0,  1, -2):   (5, 5),
-    (-1, -1, -2):   (5, 6),
-    (-1,  0, -2):   (5, 7),
-    (-1,  1, -2):   (5, 8),
-}
 # %% 
 # Automatically reload changed modules
 #%load_ext autoreload 
 #%autoreload 2
 from Piece import Piece
-from setup_cube_script import setup_cube
+from setup_cube_script import setup_cube, POINT_TO_INDEX
 import matplotlib.pyplot as plt
 import numpy as np
 from typing import Literal
@@ -179,10 +108,10 @@ def rotate_pieces(pieces: list, axis:Literal['x', 'y', 'z'], k:int):
     return pieces_copy
 
 # %% Test code
-#cube = RubiksCube()
+cube = RubiksCube()
 
-#cube.plot(exploded=True)
-#array_view = cube.array()
+cube.plot(exploded=True)
+array_view = cube.array()
 
 #cube.scramble(2)
 
