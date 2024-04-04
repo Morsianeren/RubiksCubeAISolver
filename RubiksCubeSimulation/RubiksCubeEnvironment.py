@@ -8,14 +8,45 @@ import numpy as np
 from tf_agents.environments.py_environment import PyEnvironment
 from tf_agents.environments import utils
 from tf_agents.trajectories import time_step as ts
-from tf_agents.specs import array_spec
+import tensorflow as tf
+from tf_agents.specs import BoundedArraySpec
+from Cube.RubiksCube import RubiksCube
+#from tensorflow.agents.specs import array_spec
 
 # %% Main class
 
-class RubiksCubeSimulation(PyEnvironment):
+class RubiksCubePyEnvironment(PyEnvironment):
     def __init__(self):
-        self._action_spec = array_spec.BoundedArraySpec(
-            shape=(), dtype=np.int32, minimum=0, maximum=1, name='action')
+        # In our action spec, we need to know which axis [x, y, z], row [0, 1, 2] and rotations [-1, 1]
+        # Define the ranges for each action component
+        # Define action specification for axis (x, y, z)
+        axis_spec = BoundedArraySpec(
+            name='axis',
+            minimum=0,
+            maximum=2,
+            dtype=tf.int32
+        )
+        # Define action specification for row (0, 1, 2)
+        row_spec = BoundedArraySpec(
+            name='row',
+            minimum=0,
+            maximum=2,
+            dtype=tf.int32
+        )
+        rotation_spec = BoundedArraySpec(
+            name='rotation',
+            minimum=0, # -1
+            maximum=1, # 1
+            dtype=tf.int32
+        )
+
+        # Create the action spec using a nested dictionary
+        self._action_spec = {
+            'axis': axis_spec,
+            'row': row_spec,
+            'rotation': rotation_spec
+        }
+        
         self._observation_spec = array_spec.BoundedArraySpec(
             shape=(1,), dtype=np.int32, minimum=0, name='observation')
         self._state = 0
@@ -54,3 +85,7 @@ class RubiksCubeSimulation(PyEnvironment):
         else:
             return ts.transition(
                 np.array([self._state], dtype=np.int32), reward=0.0, discount=1.0)
+        
+
+# %% Test code
+env = RubiksCubePyEnvironment()

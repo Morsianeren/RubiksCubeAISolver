@@ -9,8 +9,8 @@
 # Automatically reload changed modules
 #%load_ext autoreload 
 #%autoreload 2
-from Piece import Piece
-from setup_cube_script import setup_cube, POINT_TO_INDEX
+from .Piece import Piece
+from .setup_cube_script import setup_cube, POINT_TO_INDEX
 import matplotlib.pyplot as plt
 import numpy as np
 from typing import Literal

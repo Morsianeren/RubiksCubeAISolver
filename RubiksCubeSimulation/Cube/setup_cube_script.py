@@ -1,4 +1,4 @@
-from Piece import Piece
+from .Piece import Piece
 
 # This script manually initializes the pieces' position, 
 # orientation and color of the cube
