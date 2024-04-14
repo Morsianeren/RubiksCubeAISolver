@@ -5,6 +5,17 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 from Quaternion.Quaternion import Quaternion
 
+# This dictionary is used to convert the color to a binary representation
+# Only the colors defined here are valid colors!
+COLOR_TO_BINARY = {
+    'r': 0b00000001,
+    'g': 0b00000010,
+    'b': 0b00000100,
+    'y': 0b00001000,
+    'o': 0b00010000,
+    'w': 0b00100000
+}
+
 class Piece():
     """This class represents a piece of the Rubik's Cube. 
     It has a position and orientation."""
@@ -19,7 +30,30 @@ class Piece():
         self._INITIAL_POSITION = np.array([x_pos, y_pos, z_pos], dtype=int)
 
         # The colors of the piece
-        self.colors = {'x': None, 'y': None, 'z': None}
+        self._colors = {'x': None, 'y': None, 'z': None}
+        self._colors_binary = {'x': None, 'y': None, 'z': None}
+
+    @property
+    def colors(self) -> dict:
+        return self._colors
+    
+    @colors.setter
+    def colors(self, axis:str, color:str):
+        # Check for valid input
+        if axis not in self._colors.keys():
+            keys = self._colors.keys()
+            raise ValueError(f"Axis must be one of {keys}, got {axis}.")
+        if color[0] not in COLOR_TO_BINARY.keys():
+            keys = COLOR_TO_BINARY.keys()
+            raise ValueError(f"Color must be one of {keys}, got {color}.")
+        
+        c = color[0] # Only take the first letter, e.g. 'red' -> 'r'
+        self._colors[axis] = c
+        self._colors_binary[axis] = COLOR_TO_BINARY[c]
+
+    @property
+    def colors_binary(self) -> dict:
+        return self._colors_binary
 
     def reset_initial_state(self):
         self._INITIAL_ORIENTATION = self.orientation
