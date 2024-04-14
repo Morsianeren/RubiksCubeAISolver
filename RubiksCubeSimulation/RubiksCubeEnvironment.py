@@ -10,7 +10,7 @@ from tf_agents.environments import utils
 from tf_agents.trajectories import time_step as ts
 import tensorflow as tf
 from tf_agents.specs import BoundedArraySpec
-from Cube.RubiksCube import RubiksCube
+from .Cube.RubiksCube import RubiksCube
 #from tensorflow.agents.specs import array_spec
 
 # %% Main class
@@ -23,7 +23,9 @@ class RubiksCubePyEnvironment(PyEnvironment):
         # - direction of rotation [-1, 1]
         # That gives us a total of 18 possible actions
         self._action_spec = BoundedArraySpec(
-            shape=(18,),
+            shape=(),
+            minimum=0,
+            maximum=17,
             dtype=np.int32,
             name='action'
         )
@@ -31,7 +33,12 @@ class RubiksCubePyEnvironment(PyEnvironment):
         # The observation is the current state of the cube
         # The state is a 6x3x3=54 array of integers
         self._observation_spec = BoundedArraySpec(
-            shape=(54,), dtype=np.int32, minimum=0, name='observation')
+            shape=(54,),
+            dtype=np.int32,
+            minimum=0,
+            name='observation'
+        )
+        
         self._state = RubiksCube()
         self._episode_ended = False
         self.maximum_steps = maximum_steps
@@ -55,7 +62,7 @@ class RubiksCubePyEnvironment(PyEnvironment):
         _, completions = face_completion_rf(self._state, set())
         self._completed_faces = completions # Don't give rewards for faces that have already been completed
 
-        observation = self._state.array()
+        observation = self._state.array(binary=True).flatten()
         return ts.restart(observation)
 
     def _step(self, action):
@@ -66,11 +73,12 @@ class RubiksCubePyEnvironment(PyEnvironment):
             return self.reset()
         
         # Update the state based on the action
-        axis = action // 6
-        row = (action % 6) // 3
-        k = action % 3 + 1
-        self._state.rotate_side(axis, row, k)
-        observation = self._state.array()
+        #axis = action // 6
+        #row = (action % 6) // 3
+        #k = action % 3 + 1
+        #self._state.rotate_side(axis, row, k)
+        # TODO: Implement the action
+        observation = self._state.array(binary=True).flatten()
         reward = self._reward_function()
 
         # Make sure episodes don't go on forever.
@@ -78,7 +86,6 @@ class RubiksCubePyEnvironment(PyEnvironment):
             self._episode_ended = True
 
         if self._episode_ended:
-            reward = self._state - 21 if self._state <= 21 else -21
             return ts.termination(
                 observation=observation,
                 reward=reward
