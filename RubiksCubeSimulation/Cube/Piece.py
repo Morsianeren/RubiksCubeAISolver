@@ -5,15 +5,6 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 from Quaternion.Quaternion import Quaternion
 
-DIRECTION_COLOR_LOOKUP = {
-    (1, 0, 0): 'white',     # Front
-    (0, 1, 0): 'orange',    # Right
-    (0, 0, 1): 'blue',      # Top
-    (-1, 0, 0): 'yellow',   # Back
-    (0, -1, 0): 'red',      # Right
-    (0, 0, -1): 'green'     # Bottom
-}
-
 class Piece():
     """This class represents a piece of the Rubik's Cube. 
     It has a position and orientation."""
@@ -34,23 +25,6 @@ class Piece():
         self._INITIAL_ORIENTATION = self.orientation
         self._INITIAL_POSITION = self.position
 
-    def reset_color(self):
-        for i, c in enumerate(self.position):
-            x_vector, y_vector, z_vector = self.orientation.get_xyz_vectors()
-
-            self.colors['x'] = DIRECTION_COLOR_LOOKUP[tuple(x_vector)]
-            self.colors['y'] = DIRECTION_COLOR_LOOKUP[tuple(y_vector)]
-            self.colors['z'] = DIRECTION_COLOR_LOOKUP[tuple(z_vector)]
-
-
-            #if abs(c) == 1:
-            #    idx = 'xyz'[i]
-            #    direction = [0, 0, 0]
-            #    direction[i] = c
-            #    direction = tuple(direction)
-            #    color = DIRECTION_COLOR_LOOKUP[direction]
-            #    self.colors[idx] = color
-
     def rotate(self, axis: Literal['x', 'y', 'z'], k: int, rotate_position=True) -> None:
         """Rotate the piece k*90 degrees around the given axis."""
 
@@ -64,13 +38,10 @@ class Piece():
         sin_part = np.sin(k * np.pi / 4)
         if axis == 'x':
             rotation_quaternion = Quaternion([cos_part, sin_part, 0, 0])
-            #self.orientation = Quaternion([0, 1, 0, 0]) * self.orientation
         elif axis == 'y':
             rotation_quaternion = Quaternion([cos_part, 0, sin_part, 0])
-            #self.orientation = Quaternion([0, 0, 1, 0]) * self.orientation
         elif axis == 'z':
             rotation_quaternion = Quaternion([cos_part, 0, 0, sin_part])
-            #self.orientation = Quaternion([0, 0, 0, 1]) * self.orientation
         else:
             raise ValueError("Invalid axis. It should be 'x', 'y' or 'z'.")
         self.orientation = rotation_quaternion * self.orientation
@@ -180,7 +151,6 @@ def get_vertices(direction_vector):
     # Get the unit vectors
     u_unit = u / np.linalg.norm(u)
     w_unit = w / np.linalg.norm(w)
-    # NOTE: The vectors are already unit vectors
 
     # Now we have the orthogonal vectors
 
