@@ -8,12 +8,12 @@ from Quaternion.Quaternion import Quaternion
 # This dictionary is used to convert the color to a binary representation
 # Only the colors defined here are valid colors!
 COLOR_TO_BINARY = {
-    'r': 0b00000001,
-    'g': 0b00000010,
-    'b': 0b00000100,
-    'y': 0b00001000,
-    'o': 0b00010000,
-    'w': 0b00100000
+    'r': 1,
+    'g': 2,
+    'b': 4,
+    'y': 8,
+    'o': 16,
+    'w': 32
 }
 
 class Piece():
@@ -37,8 +37,8 @@ class Piece():
     def colors(self) -> dict:
         return self._colors
     
-    @colors.setter
-    def colors(self, axis:str, color:str):
+    #@colors.setter
+    def set_colors(self, axis:str, color:str):
         # Check for valid input
         if axis not in self._colors.keys():
             keys = self._colors.keys()
