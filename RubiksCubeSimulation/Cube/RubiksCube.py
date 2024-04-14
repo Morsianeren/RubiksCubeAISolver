@@ -65,19 +65,24 @@ class RubiksCube():
         for piece in self.pieces:
             piece.reset()
 
-    def array(self):
+    def array(self, binary:bool=False) -> list(list()):
         """This function returns a flattened list with the colors of the rubiks cube
         The order is depicted by the POINT_TO_INDEX lookup
         """
-
-        cube_color_matrix = np.empty((6,9), dtype='U')
+        if binary:
+            cube_color_matrix = np.empty((6,9), dtype=np.int32)
+        else:
+            cube_color_matrix = np.empty((6,9), dtype='U')
 
         # Iterate over all pieces
         for piece in self.pieces:
             position = piece.position
             v_x, v_y, v_z = piece.orientation.get_xyz_vectors()
             vectors = [v_x, v_y, v_z]
-            colors = piece.colors.values()
+            if binary:
+                colors = piece.colors_binary.values()
+            else:
+                colors = piece.colors.values()
             for color, vector in zip(colors, vectors):
                 point = position + vector
                 point = tuple(point)
